@@ -1,0 +1,63 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+
+# Build output
+dist/
+build/
+out/
+.vite/
+.webpack/
+*.tsbuildinfo
+
+# Electron Forge / packaging
+make/
+release/
+
+# Test & coverage
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Editors / IDE
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# PowerDesigner temporary / backup files
+*.bak
+*.pdb
+*~*.pdm
+test-fixtures/output/
+
+# Real-world PDM files: local testing only, never committed
+test-fixtures/private/
+
+# Claude Code local settings
+.claude/settings.local.json

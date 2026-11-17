@@ -1,0 +1,4 @@
+* text=auto
+# PDM fixtures must stay byte-exact (CRLF, encoding)
+*.pdm -text
+*.pdb -text

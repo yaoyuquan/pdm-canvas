@@ -1,0 +1,1614 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>PDM 建模工作台</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+body{margin:0}
+a{color:#1d4ed8}a:hover{color:#1e40af}
+.app{--bg:#e9ecf0;--panel:#f6f7f9;--surface:#ffffff;--line:#d5dae1;--line2:#e6e9ee;--text:#1f2733;--text2:#4f5b6b;--text3:#626d7d;--accent:#2563eb;--accent-weak:#e2ebfd;--accent-text:#1d4ed8;--ring:rgba(37,99,235,.28);--danger:#b3261e;--danger-weak:#fbe9e7;--warn:#8a4b00;--warn-weak:#fdf1dc;--ok:#17703f;--canvas:#f1f3f6;--dot:#cfd5dd;--nhead:#eaf0fa;--pk:#9a4a00;--pkbg:#fdf7ec;--fk:#1d4ed8;--edge:#6f7b8c;--hover:rgba(31,39,51,.07);--shadow:0 12px 40px rgba(20,30,50,.22);
+height:100vh;min-width:0;display:flex;flex-direction:column;background:var(--bg);color:var(--text);font:12px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;overflow:hidden;position:relative;outline:none}
+.app.th-dark{--bg:#14171b;--panel:#1b1f25;--surface:#22272e;--line:#363d48;--line2:#2b313a;--text:#e4e8ee;--text2:#b3bcc9;--text3:#98a3b3;--accent:#5b9bff;--accent-weak:#1f3357;--accent-text:#93bdff;--ring:rgba(91,155,255,.35);--danger:#ff8a80;--danger-weak:#42211f;--warn:#f0b35a;--warn-weak:#3d2e14;--ok:#62d196;--canvas:#171a1f;--dot:#2c333d;--nhead:#27344a;--pk:#f0b35a;--pkbg:#2c281f;--fk:#93bdff;--edge:#8793a4;--hover:rgba(255,255,255,.08);--shadow:0 12px 40px rgba(0,0,0,.55)}
+.app *{box-sizing:border-box}
+.app button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:left}
+.app button:disabled{opacity:.42;cursor:default}
+.app input,.app textarea{font:inherit;color:inherit}
+.app :focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.mono{font-family:"JetBrains Mono",Consolas,Menlo,monospace}
+.ic{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.sp{flex:1}
+.mbar{height:30px;flex:none;display:flex;align-items:center;gap:2px;padding:0 8px;background:var(--panel);border-bottom:1px solid var(--line)}
+.brand{font-weight:600;margin-right:10px;display:flex;align-items:center;gap:6px}
+.mwrap{position:relative}
+.mbtn{height:24px;padding:0 9px;border-radius:4px}
+.mbtn:hover,.mbtn.on{background:var(--hover)}
+.menu{position:absolute;top:26px;left:0;z-index:60;min-width:220px;padding:4px;background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.menu.fx{position:fixed;top:auto;left:auto}
+.mi{display:flex;align-items:center;gap:16px;height:26px;padding:0 10px;border-radius:4px;width:100%}
+.mi:hover:not(:disabled){background:var(--accent);color:#fff}
+.mi.danger{color:var(--danger)}
+.mi .k{margin-left:auto;color:var(--text3);font-size:11px}
+.mi:hover:not(:disabled) .k{color:#fff}
+.msep{height:1px;background:var(--line2);margin:4px 6px}
+.badge{font-size:11px;padding:1px 7px;border-radius:9px;background:var(--warn-weak);color:var(--warn);border:1px solid var(--warn)}
+.tbar{height:40px;flex:none;display:flex;align-items:center;gap:2px;padding:0 8px;background:var(--surface);border-bottom:1px solid var(--line);flex-wrap:nowrap;overflow:hidden}
+.tb{height:28px;padding:0 8px;border-radius:5px;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.tb:hover:not(:disabled){background:var(--hover)}
+.tb.on{background:var(--accent-weak);color:var(--accent-text)}
+.tsep{width:1px;height:18px;background:var(--line);margin:0 5px;flex:none}
+.seg{display:flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.seg button{height:24px;padding:0 9px;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--accent-weak);color:var(--accent-text);font-weight:600}
+.ftabs{height:32px;flex:none;display:flex;align-items:flex-end;gap:2px;padding:0 8px;background:var(--bg);border-bottom:1px solid var(--line)}
+.ftab{height:28px;display:flex;align-items:center;gap:4px;padding:0 4px 0 10px;border:1px solid transparent;border-bottom:0;border-radius:6px 6px 0 0;color:var(--text2);max-width:260px}
+.ftab.on{background:var(--surface);border-color:var(--line);color:var(--text);margin-bottom:-1px;height:29px}
+.ftab .nm{display:flex;align-items:center;gap:6px;height:100%;white-space:nowrap;overflow:hidden}
+.dbt{font-size:10px;padding:0 5px;border-radius:3px;border:1px solid var(--line);color:var(--text2);line-height:15px}
+.dirty{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none}
+.xb{width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex:none}
+.xb:hover{background:var(--hover)}
+.xb .ic{width:11px;height:11px}
+.body{flex:1;min-height:0;display:flex}
+.side{flex:none;display:flex;flex-direction:column;background:var(--panel);min-height:0}
+.split{width:5px;flex:none;cursor:col-resize;background:var(--line2);border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.split:hover{background:var(--accent)}
+.ph{height:30px;flex:none;display:flex;align-items:center;gap:6px;padding:0 6px 0 10px;font-weight:600;border-bottom:1px solid var(--line2)}
+.srch{margin:8px;display:flex;align-items:center;gap:6px;height:28px;padding:0 8px;background:var(--surface);border:1px solid var(--line);border-radius:5px;color:var(--text3)}
+.srch input{flex:1;min-width:0;border:0;outline:0;background:none;color:var(--text)}
+.srch:focus-within{border-color:var(--accent);box-shadow:0 0 0 2px var(--ring)}
+.tree{flex:1;min-height:0;overflow:auto;padding-bottom:8px}
+.grp{display:flex;align-items:center;gap:4px;height:24px;padding:0 8px;width:100%;color:var(--text2);font-weight:600}
+.grp:hover{background:var(--hover)}
+.chev{width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex:none;border-radius:3px}
+.chev .ic{width:10px;height:10px;transition:transform .12s}
+.chev.open .ic{transform:rotate(90deg)}
+.trow{display:flex;align-items:center;height:24px;padding-left:18px}
+.trow:hover{background:var(--hover)}
+.trow.sel{background:var(--accent-weak)}
+.trow .main{flex:1;min-width:0;height:100%;display:flex;align-items:center;gap:6px;overflow:hidden;white-space:nowrap}
+.trow.off .main{opacity:.62}
+.trow .cn{color:var(--text3);overflow:hidden;text-overflow:ellipsis}
+.hit{color:var(--accent-text);font-weight:600}
+.frow{display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;gap:4px;height:22px;width:100%;padding:0 8px 0 40px}
+.frow:hover{background:var(--hover)}
+.frow.sel{background:var(--accent-weak)}
+.frow.hit .fc{color:var(--accent-text);font-weight:600}
+.fc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ty{color:var(--text3);font-size:11px;white-space:nowrap}
+.leaf{display:flex;align-items:center;gap:6px;height:22px;padding:0 8px 0 40px;color:var(--text2);white-space:nowrap;overflow:hidden}
+.tags{display:flex;gap:2px}
+.tag{font:600 9px/13px "JetBrains Mono",Consolas,Menlo,monospace;padding:0 3px;border-radius:3px;border:1px solid}
+.tag.pk{color:var(--pk);border-color:var(--pk)}
+.tag.fk{color:var(--fk);border-color:var(--fk)}
+.center{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--canvas)}
+.dtabs{height:30px;flex:none;display:flex;align-items:center;gap:2px;padding:0 8px;background:var(--panel);border-bottom:1px solid var(--line)}
+.dtab{height:24px;padding:0 10px;border-radius:4px;color:var(--text2);white-space:nowrap}
+.dtab:hover{background:var(--hover)}
+.dtab.on{background:var(--accent-weak);color:var(--accent-text);font-weight:600}
+.cv{flex:1;min-height:0;position:relative;overflow:hidden;background-image:radial-gradient(var(--dot) 1px,transparent 1.2px)}
+.cv.hand{cursor:grab}
+.world{position:absolute;left:0;top:0;transform-origin:0 0}
+.edge{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+.edge .eh{stroke:transparent;stroke-width:12;fill:none;pointer-events:stroke;cursor:pointer}
+.edge .el{stroke:var(--edge);stroke-width:1.4;fill:none}
+.edge.adj .el{stroke:var(--accent);stroke-width:1.6}
+.edge.sel .el{stroke:var(--accent);stroke-width:2.4}
+.edge.bad .el{stroke:var(--danger);stroke-dasharray:5 4}
+.elbl{position:absolute;transform:translate(-50%,-50%);font-size:10px;padding:0 5px;border-radius:8px;background:var(--surface);border:1px solid var(--edge);color:var(--text2);white-space:nowrap;line-height:15px}
+.elbl.sel{border-color:var(--accent);color:var(--accent-text);font-weight:600}
+.node{position:absolute;background:var(--surface);border:1px solid var(--edge);border-radius:6px;box-shadow:0 1px 3px rgba(20,30,50,.12);cursor:move;user-select:none;-webkit-user-select:none}
+.node.rel{border-color:var(--accent)}
+.node.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--ring),0 2px 8px rgba(20,30,50,.16)}
+.node.flash{animation:fl 1.6s ease-out}
+@keyframes fl{0%,55%{box-shadow:0 0 0 7px var(--ring)}100%{box-shadow:0 0 0 2px var(--ring)}}
+.nh{display:flex;align-items:center;gap:8px;height:34px;width:100%;padding:0 10px;background:var(--nhead);border-bottom:1px solid var(--line);border-radius:5px 5px 0 0;cursor:move;white-space:nowrap;overflow:hidden}
+.nh .a{font-weight:600;font-size:12.5px;overflow:hidden;text-overflow:ellipsis}
+.nh .b{color:var(--text2);overflow:hidden;text-overflow:ellipsis}
+.nr{display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;gap:4px;height:22px;width:100%;padding:0 8px 0 6px;cursor:move}
+.nr:hover{background:var(--hover)}
+.nr.pk{background:var(--pkbg)}
+.nr.pk .fc{font-weight:600}
+.nr.hi{background:var(--accent-weak)}
+.nf{display:block;width:100%;height:22px;padding:0 10px;color:var(--accent-text);font-size:11px;border-top:1px dashed var(--line);border-radius:0 0 5px 5px}
+.nf:hover{background:var(--hover)}
+.marq{position:absolute;border:1px solid var(--accent);background:var(--ring);pointer-events:none}
+.zoom{position:absolute;left:10px;bottom:10px;display:flex;align-items:center;gap:1px;padding:2px;background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:0 1px 4px rgba(20,30,50,.12)}
+.zoom button{height:24px;min-width:24px;padding:0 5px;border-radius:4px;display:flex;align-items:center;justify-content:center}
+.zoom button:hover{background:var(--hover)}
+.zoom button.on{background:var(--accent-weak);color:var(--accent-text)}
+.mini{position:absolute;right:10px;bottom:10px;width:180px;height:120px;background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:0 1px 4px rgba(20,30,50,.12);overflow:hidden;cursor:pointer;display:block}
+.mini span{position:absolute;display:block}
+.mini .mn{background:var(--edge);opacity:.55;border-radius:1px}
+.mini .mn.sel{background:var(--accent);opacity:1}
+.mini .mv{border:1.5px solid var(--accent);background:var(--ring)}
+.empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--text2);text-align:center}
+.empty h2{margin:0;font-size:15px;color:var(--text)}
+.row{display:flex;align-items:center;gap:8px}
+.col{display:flex;flex-direction:column;gap:8px}
+.btn{height:28px;padding:0 12px;border-radius:5px;border:1px solid var(--line) !important;background:var(--surface) !important;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover:not(:disabled){border-color:var(--accent) !important}
+.btn.pri{background:#2563eb !important;border-color:#2563eb !important;color:#fff !important;font-weight:600}
+.btn.pri:hover:not(:disabled){background:#1d4ed8 !important}
+.btn.dng{background:#b3261e !important;border-color:#b3261e !important;color:#fff !important;font-weight:600}
+.btn.sm{height:24px;padding:0 8px}
+.pbody{flex:1;min-height:0;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:10px}
+.fl{display:flex;flex-direction:column;gap:3px}
+.fl>span{color:var(--text2);font-size:11px}
+.inp{height:26px;width:100%;padding:0 7px;background:var(--surface);border:1px solid var(--line);border-radius:4px;outline:0;min-width:0}
+textarea.inp{height:54px;padding:5px 7px;resize:vertical}
+.inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--ring)}
+.inp:disabled{background:var(--panel);color:var(--text3)}
+.inp.bad{border-color:var(--danger);background:var(--danger-weak)}
+.kv{display:grid;grid-template-columns:76px minmax(0,1fr);gap:4px 8px;align-items:baseline}
+.kv dt{color:var(--text2);font-size:11px}
+.kv dd{margin:0;overflow-wrap:anywhere}
+.sec{font-weight:600;color:var(--text2);font-size:11px;padding-top:6px;border-top:1px solid var(--line2)}
+.li{display:flex;align-items:center;gap:6px;height:24px;padding:0 6px;border-radius:4px;width:100%;white-space:nowrap;overflow:hidden}
+.li:hover{background:var(--hover)}
+.map{display:grid;grid-template-columns:minmax(0,1fr) 16px minmax(0,1fr);gap:4px 6px;align-items:center;padding:6px 8px;background:var(--surface);border:1px solid var(--line);border-radius:5px}
+.map .h{font-size:11px;color:var(--text2)}
+.map .bad{color:var(--danger);font-weight:600}
+.chip{height:24px;padding:0 9px;border-radius:12px;border:1px solid var(--line) !important;background:var(--surface) !important;white-space:nowrap}
+.chip.on{background:var(--accent-weak) !important;border-color:var(--accent) !important;color:var(--accent-text) !important;font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.note{padding:7px 9px;border-radius:5px;background:var(--accent-weak);color:var(--text);font-size:11.5px}
+.note.warn{background:var(--warn-weak);color:var(--text)}
+.note.err{background:var(--danger-weak);color:var(--text)}
+.chk{flex:none;height:210px;display:flex;flex-direction:column;background:var(--surface);border-top:1px solid var(--line)}
+.chk .list{flex:1;min-height:0;overflow:auto}
+.iss{display:grid;grid-template-columns:44px minmax(0,1.6fr) minmax(0,1fr);gap:10px;align-items:center;height:26px;padding:0 12px;width:100%;border-bottom:1px solid var(--line2)}
+.iss:hover{background:var(--accent-weak)}
+.lv{font-size:10px;font-weight:600;text-align:center;border-radius:3px;line-height:16px}
+.lv.error{background:var(--danger-weak);color:var(--danger)}
+.lv.warn{background:var(--warn-weak);color:var(--warn)}
+.lv.info{background:var(--accent-weak);color:var(--accent-text)}
+.status{height:26px;flex:none;display:flex;align-items:center;gap:14px;padding:0 10px;background:var(--panel);border-top:1px solid var(--line);color:var(--text2);font-size:11.5px;white-space:nowrap;overflow:hidden}
+.status button{height:20px;padding:0 6px;border-radius:4px}
+.status button:hover{background:var(--hover)}
+.st-dirty{color:var(--accent-text);font-weight:600}
+.back{position:fixed;inset:0;z-index:50}
+.dlgbg{position:absolute;inset:0;z-index:80;background:rgba(15,20,30,.42);display:flex;align-items:center;justify-content:center;padding:20px}
+.dlg{background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);width:460px;max-width:100%;max-height:100%;display:flex;flex-direction:column;overflow:hidden}
+.dlg.big{width:1120px;height:680px}
+.dh{flex:none;display:flex;align-items:center;gap:8px;height:40px;padding:0 8px 0 14px;border-bottom:1px solid var(--line2);font-weight:600;font-size:13px}
+.db{flex:1;min-height:0;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.df{flex:none;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:10px 14px;border-top:1px solid var(--line2);background:var(--panel)}
+.etabs{flex:none;display:flex;gap:2px;padding:0 10px;border-bottom:1px solid var(--line);background:var(--panel)}
+.etab{height:32px;padding:0 12px;border-bottom:2px solid transparent;color:var(--text2);white-space:nowrap}
+.etab.on{color:var(--accent-text);border-bottom-color:var(--accent);font-weight:600}
+.cnt{font-size:10px;padding:0 5px;border-radius:8px;background:var(--danger-weak);color:var(--danger);margin-left:4px}
+.gridw{overflow:auto;border:1px solid var(--line);border-radius:5px;flex:1;min-height:120px}
+.gr{display:grid;grid-template-columns:30px 34px minmax(130px,1.5fr) minmax(90px,1.1fr) minmax(104px,1.1fr) 54px 54px 54px 62px minmax(84px,1fr) minmax(110px,1.4fr) 82px;min-width:960px;align-items:center;border-bottom:1px solid var(--line2)}
+.gr.hd{position:sticky;top:0;z-index:1;background:var(--panel);font-weight:600;color:var(--text2);height:28px;font-size:11px}
+.gr.hd>span{padding:0 6px}
+.gr>*{min-width:0}
+.gr.cur{background:var(--accent-weak)}
+.gr .c{display:flex;align-items:center;justify-content:center;height:28px;color:var(--text3)}
+.cell{height:28px;width:100%;padding:0 6px;border:1px solid transparent;background:none;outline:0}
+.cell:hover{border-color:var(--line)}
+.cell:focus{border-color:var(--accent);background:var(--surface)}
+.cell:disabled{color:transparent;background:repeating-linear-gradient(135deg,transparent 0 4px,var(--line2) 4px 5px)}
+.cell.bad{border-color:var(--danger);background:var(--danger-weak)}
+.rerr{grid-column:1 / -1;padding:3px 8px 4px 70px;font-size:11px;color:var(--danger);background:var(--danger-weak)}
+.rwarn{grid-column:1 / -1;padding:3px 8px 4px 70px;font-size:11px;color:var(--warn);background:var(--warn-weak)}
+.ops{display:flex;justify-content:center;gap:1px}
+.card{border:1px solid var(--line);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.sql{flex:1;min-height:0;margin:0;padding:12px;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:5px;font:12px/1.6 "JetBrains Mono",Consolas,Menlo,monospace;white-space:pre;color:var(--text)}
+.wel{flex:1;min-height:0;overflow:auto;display:flex;justify-content:center;padding:48px 24px;background:var(--canvas)}
+.welin{width:100%;max-width:920px;display:flex;flex-wrap:wrap;gap:40px;align-content:flex-start}
+.wel h1{margin:0 0 4px;font-size:22px;font-weight:600}
+.wel h2{margin:0 0 8px;font-size:12px;font-weight:600;color:var(--text2)}
+.wcard{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;background:var(--surface) !important;border:1px solid var(--line) !important;border-radius:6px}
+.wcard:hover{border-color:var(--accent) !important}
+.wcard .t{font-weight:600}
+.wcard .d{color:var(--text2);font-size:11.5px}
+.steps{display:flex;flex-direction:column;gap:8px}
+.step{display:flex;align-items:center;gap:8px;color:var(--text3)}
+.step i{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);flex:none;display:block}
+.step.done{color:var(--text)}
+.step.done i{background:var(--ok);border-color:var(--ok)}
+.step.act{color:var(--text);font-weight:600}
+.step.act i{border-color:var(--accent);border-top-color:transparent;animation:spin .8s linear infinite}
+.step.fail{color:var(--danger);font-weight:600}
+.step.fail i{background:var(--danger);border-color:var(--danger)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:absolute;left:50%;bottom:40px;transform:translateX(-50%);z-index:90;max-width:620px;padding:8px 14px;border-radius:6px;background:#1f2733;color:#fff;box-shadow:var(--shadow);font-size:12px}
+.th-dark .toast{background:#e4e8ee;color:#14171b}
+</style>
+</helmet>
+<div class="{{themeClass}}" tabindex="0" onKeyDown="{{onKey}}">
+
+<div class="mbar">
+<div class="brand"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h5v4H2zM9 9h5v4H9zM7 5h2.5v6H9"></path></svg><span>PDM Modeler</span></div>
+<sc-for list="{{menus}}" as="m" hint-placeholder-count="5">
+<div class="mwrap">
+<button class="{{m.cls}}" onClick="{{m.toggle}}">{{m.label}}</button>
+<sc-if value="{{m.open}}" hint-placeholder-val="{{ false }}">
+<div class="menu">
+<sc-for list="{{m.items}}" as="it" hint-placeholder-count="0">
+<sc-if value="{{it.sep}}" hint-placeholder-val="{{ false }}"><div class="msep"></div></sc-if>
+<sc-if value="{{it.item}}" hint-placeholder-val="{{ true }}"><button class="{{it.cls}}" disabled="{{it.disabled}}" onClick="{{it.click}}"><span>{{it.label}}</span><span class="k">{{it.hint}}</span></button></sc-if>
+</sc-for>
+</div>
+</sc-if>
+</div>
+</sc-for>
+<div class="sp"></div>
+<span class="badge" title="导入与保存为演示流程，不读写本机文件">交互原型 · 模拟数据</span>
+<button class="tb" onClick="{{toggleTheme}}" title="切换浅色 / 深色主题" aria-label="切换主题"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 5a3 3 0 100 6 3 3 0 000-6zM8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"></path></svg><span>{{themeLabel}}</span></button>
+</div>
+
+<div class="tbar">
+<button class="tb" onClick="{{actImport}}" title="导入 PowerDesigner PDM 文件（演示流程）"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8M5 7l3 3 3-3M3 13h10"></path></svg><span>导入 PDM</span></button>
+<button class="tb" disabled="{{noDoc}}" onClick="{{actSave}}" title="{{saveTip}}"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3h8l2 2v8H3zM5.5 3v3.5h4.5V3M5 13V9.5h6V13"></path></svg><span>保存</span></button>
+<span class="tsep"></span>
+<button class="tb" disabled="{{noDoc}}" onClick="{{actNewTable}}" title="新建表并加入当前关系图"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h9v10H2zM2 6.5h9M5.5 6.5V13M13.5 2v4M11.5 4h4"></path></svg><span>新建表</span></button>
+<button class="tb" disabled="{{noRel}}" onClick="{{actNewRel}}" title="新建外键关系"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h5v3.5H2zM9 9.5h5V13H9zM4.5 6.5v4.7H9"></path></svg><span>新建关系</span></button>
+<span class="tsep"></span>
+<button class="tb" disabled="{{noUndo}}" onClick="{{actUndo}}" title="{{undoTip}}"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3L3 6l3 3M3 6h6.5a3.5 3.5 0 010 7H7"></path></svg><span>撤销</span></button>
+<button class="tb" disabled="{{noRedo}}" onClick="{{actRedo}}" title="{{redoTip}}"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3l3 3-3 3M13 6H6.5a3.5 3.5 0 000 7H9"></path></svg><span>重做</span></button>
+<span class="tsep"></span>
+<button class="tb" disabled="{{noDoc}}" onClick="{{actLayout}}" title="按外键层级重新排布当前关系图（可撤销）"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h5v4H2zM9 3h5v3H9zM9 9h5v4H9zM2 10h5v3H2z"></path></svg><span>自动布局</span></button>
+<button class="tb" disabled="{{noDoc}}" onClick="{{actCheck}}" title="执行模型检查"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7"></path></svg><span>模型检查</span></button>
+<div class="sp"></div>
+<span style="color: var(--text2); white-space: nowrap">字段显示</span>
+<div class="seg" role="group" aria-label="字段显示方式">
+<sc-for list="{{modes}}" as="mo" hint-placeholder-count="3"><button class="{{mo.cls}}" disabled="{{noDoc}}" onClick="{{mo.pick}}">{{mo.label}}</button></sc-for>
+</div>
+</div>
+
+<div class="ftabs">
+<sc-for list="{{tabs}}" as="tb" hint-placeholder-count="0">
+<div class="{{tb.cls}}">
+<button class="nm" onClick="{{tb.pick}}" title="{{tb.path}}"><sc-if value="{{tb.dirty}}" hint-placeholder-val="{{ false }}"><span class="dirty" title="有未保存的更改"></span></sc-if><span class="mono">{{tb.file}}</span><span class="dbt">{{tb.db}}</span></button>
+<button class="xb" onClick="{{tb.close}}" aria-label="关闭文件"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"></path></svg></button>
+</div>
+</sc-for>
+<button class="{{homeCls}}" onClick="{{goHome}}" title="开始页"><span class="nm" style="padding-right: 6px">开始页</span></button>
+</div>
+
+<sc-if value="{{showWelcome}}" hint-placeholder-val="{{ true }}">
+<div class="wel">
+<div class="welin">
+<div style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 22px">
+<div>
+<h1>PDM Modeler</h1>
+<div style="color: var(--text2)">导入 PowerDesigner PDM，查看和编辑物理数据模型，再保存回 PDM。</div>
+</div>
+<div>
+<h2>开始</h2>
+<div class="col">
+<button class="wcard" onClick="{{actImport}}"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8M5 7l3 3 3-3M3 13h10"></path></svg><span><span class="t">导入 PDM 文件…</span><br><span class="d">演示流程：从内置演示文件中选择，包含成功、兼容性提示和失败三种结果</span></span></button>
+<button class="wcard" onClick="{{actNewModel}}"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10"></path></svg><span><span class="t">新建空白模型</span><br><span class="d">选择目标数据库，从空画布开始</span></span></button>
+</div>
+</div>
+</div>
+<div style="flex: 1 1 320px; min-width: 0">
+<div class="row" style="justify-content: space-between"><h2>最近文件</h2><sc-if value="{{hasRecent}}" hint-placeholder-val="{{ true }}"><button style="color: var(--accent-text); font-size: 11px; margin-bottom: 8px" onClick="{{clearRecent}}">清空（查看首次启动状态）</button></sc-if></div>
+<sc-if value="{{hasRecent}}" hint-placeholder-val="{{ true }}">
+<div class="col">
+<sc-for list="{{recents}}" as="rc" hint-placeholder-count="4">
+<button class="wcard" onClick="{{rc.open}}"><span style="flex: 1; min-width: 0"><span class="t mono">{{rc.file}}</span><br><span class="d mono">{{rc.path}}</span></span><span class="dbt">{{rc.db}}</span></button>
+</sc-for>
+<div style="color: var(--text3); font-size: 11px">最近文件为演示条目，打开时加载对应的内置模型。</div>
+</div>
+</sc-if>
+<sc-if value="{{noRecent}}" hint-placeholder-val="{{ false }}">
+<div class="col" style="padding: 22px; border: 1px dashed var(--line); border-radius: 6px; color: var(--text2); align-items: flex-start">
+<span style="font-weight: 600; color: var(--text)">还没有最近文件</span>
+<span>首次使用？导入一个 PDM 文件，或新建空白模型。</span>
+<button class="btn sm" onClick="{{restoreRecent}}">恢复演示条目</button>
+</div>
+</sc-if>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showWork}}" hint-placeholder-val="{{ false }}">
+<div class="body">
+<sc-if value="{{leftOpen}}" hint-placeholder-val="{{ true }}">
+<div class="side" style="width: {{leftW}}px">
+<div class="ph"><span>模型浏览器</span><div class="sp"></div><button class="xb" onClick="{{toggleLeft}}" aria-label="折叠模型浏览器" title="折叠"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 4L6 8l4 4"></path></svg></button></div>
+<label class="srch"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M7 3a4 4 0 100 8 4 4 0 000-8zM10 10l3.5 3.5"></path></svg><input value="{{q}}" onChange="{{setQ}}" onKeyDown="{{qKey}}" placeholder="搜索表名、中文名称、字段名" aria-label="搜索模型对象"></label>
+<div class="tree">
+<div class="grp" style="cursor: default"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4c0-1 2.2-1.8 5-1.8s5 .8 5 1.8v8c0 1-2.2 1.8-5 1.8S3 13 3 12zM3 4c0 1 2.2 1.8 5 1.8s5-.8 5-1.8M3 8c0 1 2.2 1.8 5 1.8s5-.8 5-1.8"></path></svg><span class="mono">{{ownerLabel}}</span></div>
+<button class="grp" onClick="{{togTables}}"><span class="{{chevTables}}"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"></path></svg></span><span>表（{{tableCount}}）</span></button>
+<sc-if value="{{openTables}}" hint-placeholder-val="{{ true }}">
+<sc-for list="{{tree}}" as="t" hint-placeholder-count="0">
+<div class="{{t.cls}}" onContextMenu="{{t.ctx}}">
+<button class="{{t.chev}}" onClick="{{t.toggle}}" aria-label="展开或折叠字段"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"></path></svg></button>
+<button class="main" onClick="{{t.click}}" onDoubleClick="{{t.dbl}}" title="{{t.tip}}"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12v10H2zM2 6.5h12M6 6.5V13"></path></svg><span class="{{t.codeCls}}">{{t.code}}</span><span class="cn">{{t.name}}</span></button>
+</div>
+<sc-for list="{{t.fields}}" as="f" hint-placeholder-count="0">
+<button class="{{f.cls}}" onClick="{{f.click}}" title="{{f.name}}"><span class="tags"><sc-if value="{{f.pk}}" hint-placeholder-val="{{ false }}"><span class="tag pk">PK</span></sc-if><sc-if value="{{f.fk}}" hint-placeholder-val="{{ false }}"><span class="tag fk">FK</span></sc-if></span><span class="fc mono">{{f.code}}</span><span class="ty mono">{{f.type}}</span></button>
+</sc-for>
+</sc-for>
+<sc-if value="{{noHits}}" hint-placeholder-val="{{ false }}"><div class="leaf">没有匹配“{{q}}”的表或字段</div></sc-if>
+<sc-if value="{{noTables}}" hint-placeholder-val="{{ false }}"><div class="leaf">暂无表，点击工具栏“新建表”</div></sc-if>
+</sc-if>
+<button class="grp" onClick="{{togViews}}"><span class="{{chevViews}}"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"></path></svg></span><span>视图（{{viewCount}}）</span></button>
+<sc-if value="{{openViews}}" hint-placeholder-val="{{ false }}"><sc-for list="{{views}}" as="o" hint-placeholder-count="0"><div class="leaf" title="原型中视图仅展示，不可编辑"><span class="mono">{{o.code}}</span><span style="color: var(--text3)">{{o.name}}</span></div></sc-for></sc-if>
+<button class="grp" onClick="{{togSeqs}}"><span class="{{chevSeqs}}"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"></path></svg></span><span>序列（{{seqCount}}）</span></button>
+<sc-if value="{{openSeqs}}" hint-placeholder-val="{{ false }}"><sc-for list="{{seqs}}" as="o" hint-placeholder-count="0"><div class="leaf" title="原型中序列仅展示，不可编辑"><span class="mono">{{o.code}}</span><span style="color: var(--text3)">{{o.name}}</span></div></sc-for></sc-if>
+</div>
+</div>
+<div class="split" onMouseDown="{{splitL}}" title="拖动调整宽度"></div>
+</sc-if>
+
+<div class="center">
+<div class="dtabs">
+<sc-if value="{{leftClosed}}" hint-placeholder-val="{{ false }}"><button class="tb" style="height: 24px" onClick="{{toggleLeft}}" title="展开模型浏览器"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12v10H2zM6 3v10"></path></svg></button></sc-if>
+<sc-for list="{{dgs}}" as="g" hint-placeholder-count="2"><button class="{{g.cls}}" onClick="{{g.pick}}">{{g.name}}</button></sc-for>
+<button class="xb" onClick="{{addDg}}" aria-label="新建关系图" title="新建关系图"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10"></path></svg></button>
+<div class="sp"></div>
+<sc-if value="{{rightClosed}}" hint-placeholder-val="{{ false }}"><button class="tb" style="height: 24px" onClick="{{toggleRight}}" title="展开属性面板"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12v10H2zM10 3v10"></path></svg><span>属性</span></button></sc-if>
+</div>
+<div class="{{cvCls}}" ref="{{cvRef}}" onMouseDown="{{bgDown}}" onWheel="{{onWheel}}" onContextMenu="{{bgCtx}}" style="background-size: {{gs}}px {{gs}}px; background-position: {{vx}}px {{vy}}px">
+<div class="world" style="transform: translate({{vx}}px, {{vy}}px) scale({{vz}})">
+<sc-for list="{{edges}}" as="e" hint-placeholder-count="0">
+<svg class="{{e.cls}}" width="1" height="1" role="img" aria-label="{{e.aria}}"><path class="el" d="{{e.d}}"></path><path class="eh" d="{{e.d}}" onMouseDown="{{e.down}}"></path></svg>
+<sc-if value="{{e.multi}}" hint-placeholder-val="{{ false }}"><span class="{{e.lblCls}}" style="left: {{e.lx}}px; top: {{e.ly}}px">{{e.n}} 列</span></sc-if>
+</sc-for>
+<sc-for list="{{nodes}}" as="n" hint-placeholder-count="0">
+<div class="{{n.cls}}" style="left: {{n.x}}px; top: {{n.y}}px; width: {{n.w}}px" onMouseDown="{{n.down}}" onDoubleClick="{{n.dbl}}" onContextMenu="{{n.ctx}}">
+<button class="nh" title="双击编辑完整表结构"><span class="{{n.aCls}}">{{n.a}}</span><span class="b">{{n.b}}</span></button>
+<sc-for list="{{n.rows}}" as="f" hint-placeholder-count="0">
+<button class="{{f.cls}}" onClick="{{f.click}}" title="{{f.tip}}"><span class="tags"><sc-if value="{{f.pk}}" hint-placeholder-val="{{ false }}"><span class="tag pk">PK</span></sc-if><sc-if value="{{f.fk}}" hint-placeholder-val="{{ false }}"><span class="tag fk">FK</span></sc-if></span><span class="{{f.lblCls}}">{{f.label}}<span style="color: var(--text3); font-family: inherit; font-weight: 400"> {{f.sub}}</span></span><span class="ty mono">{{f.type}}</span></button>
+</sc-for>
+<sc-if value="{{n.foot}}" hint-placeholder-val="{{ false }}"><button class="nf" onClick="{{n.togFold}}">{{n.footText}}</button></sc-if>
+</div>
+</sc-for>
+</div>
+<sc-if value="{{hasMarq}}" hint-placeholder-val="{{ false }}"><div class="marq" style="left: {{mq.x}}px; top: {{mq.y}}px; width: {{mq.w}}px; height: {{mq.h}}px"></div></sc-if>
+<sc-if value="{{emptyModel}}" hint-placeholder-val="{{ false }}">
+<div class="empty">
+<h2>空白模型</h2>
+<span>这个模型还没有表。新建第一张表，或导入已有的 PDM 文件。</span>
+<div class="row"><button class="btn pri" onClick="{{actNewTable}}">新建表</button><button class="btn" onClick="{{actImport}}">导入 PDM…</button></div>
+</div>
+</sc-if>
+<sc-if value="{{emptyDiagram}}" hint-placeholder-val="{{ false }}">
+<div class="empty">
+<h2>当前关系图中没有表</h2>
+<span>在左侧模型浏览器中右键表，选择“添加到当前关系图”。</span>
+<button class="btn" onClick="{{addAll}}">添加全部表</button>
+</div>
+</sc-if>
+<div class="zoom" onMouseDown="{{stop}}">
+<button class="{{selToolCls}}" onClick="{{toolSel}}" title="选择 / 框选" aria-label="选择工具"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2l8 6-4 1-1.5 4z"></path></svg></button>
+<button class="{{handToolCls}}" onClick="{{toolHand}}" title="平移画布（也可滚动滚轮或按住鼠标中键拖动）" aria-label="平移工具"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v12M2 8h12M8 2L6.3 3.7M8 2l1.7 1.7M8 14l-1.7-1.7M8 14l1.7-1.7M2 8l1.7-1.7M2 8l1.7 1.7M14 8l-1.7-1.7M14 8l-1.7 1.7"></path></svg></button>
+<span class="tsep"></span>
+<button onClick="{{zoomOut}}" aria-label="缩小" title="缩小"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10"></path></svg></button>
+<button class="mono" onClick="{{zoom100}}" title="恢复 100%" style="min-width: 46px">{{zoomPct}}%</button>
+<button onClick="{{zoomIn}}" aria-label="放大" title="放大"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10"></path></svg></button>
+<button onClick="{{actFit}}" title="适应画布" aria-label="适应画布"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"></path></svg></button>
+</div>
+<button class="mini" onMouseDown="{{stop}}" onClick="{{miniClick}}" aria-label="缩略图，点击定位视口" title="缩略图">
+<sc-for list="{{miniNodes}}" as="mn" hint-placeholder-count="0"><span class="{{mn.cls}}" style="left: {{mn.x}}px; top: {{mn.y}}px; width: {{mn.w}}px; height: {{mn.h}}px"></span></sc-for>
+<span class="mv" style="left: {{mv.x}}px; top: {{mv.y}}px; width: {{mv.w}}px; height: {{mv.h}}px"></span>
+</button>
+</div>
+</div>
+
+<sc-if value="{{rightOpen}}" hint-placeholder-val="{{ true }}">
+<div class="split" onMouseDown="{{splitR}}" title="拖动调整宽度"></div>
+<div class="side" style="width: {{rightW}}px">
+<div class="ph"><span>属性</span><span style="font-weight: 400; color: var(--text2)">· {{propKind}}</span><div class="sp"></div><button class="xb" onClick="{{toggleRight}}" aria-label="折叠属性面板" title="折叠"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"></path></svg></button></div>
+
+<sc-if value="{{isModel}}" hint-placeholder-val="{{ true }}">
+<div class="pbody">
+<label class="fl"><span>名称</span><input class="inp" value="{{pm.name}}" onChange="{{pm.setName}}"></label>
+<label class="fl"><span>代码</span><input class="inp mono" value="{{pm.code}}" onChange="{{pm.setCode}}"></label>
+<label class="fl"><span>注释</span><textarea class="inp" value="{{pm.comment}}" onChange="{{pm.setComment}}"></textarea></label>
+<dl class="kv" style="margin: 0">
+<dt>目标数据库</dt><dd>{{pm.db}}</dd>
+<dt>{{pm.ownerLabel}}</dt><dd class="mono">{{pm.owner}}</dd>
+<dt>文件</dt><dd class="mono">{{pm.path}}</dd>
+<dt>表 / 关系</dt><dd>{{pm.tables}} 张表，{{pm.rels}} 条关系</dd>
+<dt>关系图</dt><dd>{{pm.dgs}} 张</dd>
+</dl>
+<div class="note">未选中对象时显示模型属性。在画布或模型浏览器中点击表、字段或连线可查看对应属性。切换目标数据库尚未实现。</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isTable}}" hint-placeholder-val="{{ false }}">
+<div class="pbody">
+<label class="fl"><span>名称</span><input class="inp" value="{{pt.name}}" onChange="{{pt.setName}}"></label>
+<label class="fl"><span>代码（数据库对象名）</span><input class="{{pt.codeCls}}" value="{{pt.code}}" onChange="{{pt.setCode}}"></label>
+<label class="fl"><span>注释</span><textarea class="inp" value="{{pt.comment}}" onChange="{{pt.setComment}}"></textarea></label>
+<button class="btn pri" style="justify-content: center" onClick="{{pt.edit}}">编辑完整表结构…</button>
+<sc-if value="{{pt.off}}" hint-placeholder-val="{{ false }}"><div class="note warn">这张表不在当前关系图中。<button style="color: var(--accent-text); font-weight: 600" onClick="{{pt.add}}">添加到当前关系图</button></div></sc-if>
+<div class="sec">字段（{{pt.count}}）</div>
+<div>
+<sc-for list="{{pt.fields}}" as="f" hint-placeholder-count="0"><button class="li" onClick="{{f.click}}"><span class="tags" style="width: 38px"><sc-if value="{{f.pk}}" hint-placeholder-val="{{ false }}"><span class="tag pk">PK</span></sc-if><sc-if value="{{f.fk}}" hint-placeholder-val="{{ false }}"><span class="tag fk">FK</span></sc-if></span><span class="mono fc" style="flex: 1">{{f.code}}</span><span class="ty mono">{{f.type}}</span></button></sc-for>
+</div>
+<div class="sec">关系（{{pt.relCount}}）</div>
+<div>
+<sc-for list="{{pt.rels}}" as="r" hint-placeholder-count="0"><button class="li" onClick="{{r.click}}"><span style="color: var(--text2)">{{r.dir}}</span><span class="mono fc">{{r.other}}</span></button></sc-for>
+</div>
+<div class="sec">{{pt.dbTitle}}</div>
+<div style="color: var(--text2)">{{pt.dbLine}}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isField}}" hint-placeholder-val="{{ false }}">
+<div class="pbody">
+<button class="li" style="color: var(--accent-text)" onClick="{{pf.back}}"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 4L6 8l4 4"></path></svg><span class="mono">{{pf.tcode}}</span></button>
+<label class="fl"><span>名称</span><input class="inp" value="{{pf.name}}" onChange="{{pf.setName}}"></label>
+<label class="fl"><span>代码</span><input class="inp mono" value="{{pf.code}}" onChange="{{pf.setCode}}"></label>
+<label class="fl"><span>注释</span><textarea class="inp" value="{{pf.comment}}" onChange="{{pf.setComment}}"></textarea></label>
+<dl class="kv" style="margin: 0">
+<dt>数据类型</dt><dd class="mono">{{pf.type}}</dd>
+<dt>允许为空</dt><dd>{{pf.nullable}}</dd>
+<dt>默认值</dt><dd class="mono">{{pf.def}}</dd>
+<dt>键</dt><dd>{{pf.keys}}</dd>
+</dl>
+<button class="btn" style="justify-content: center" onClick="{{pf.edit}}">在表编辑器中修改类型与约束…</button>
+</div>
+</sc-if>
+
+<sc-if value="{{isRel}}" hint-placeholder-val="{{ false }}">
+<div class="pbody">
+<label class="fl"><span>名称</span><input class="inp" value="{{pr.name}}" onChange="{{pr.setName}}"></label>
+<label class="fl"><span>代码（外键约束名）</span><input class="inp mono" value="{{pr.code}}" onChange="{{pr.setCode}}"></label>
+<dl class="kv" style="margin: 0">
+<dt>父表</dt><dd><button class="mono" style="color: var(--accent-text)" onClick="{{pr.goParent}}">{{pr.parent}}</button></dd>
+<dt>子表</dt><dd><button class="mono" style="color: var(--accent-text)" onClick="{{pr.goChild}}">{{pr.child}}</button></dd>
+<dt>基数</dt><dd>{{pr.card}}</dd>
+</dl>
+<div class="sec">字段映射（{{pr.n}} 组）</div>
+<div class="map">
+<span class="h">父表字段</span><span></span><span class="h">子表字段</span>
+<sc-for list="{{pr.pairs}}" as="p" hint-placeholder-count="1"><span class="{{p.pCls}}">{{p.p}}</span><span style="color: var(--text3)">→</span><span class="{{p.cCls}}">{{p.c}}</span></sc-for>
+</div>
+<sc-if value="{{pr.composite}}" hint-placeholder-val="{{ false }}"><div class="note">复合外键：多组字段映射属于同一条关系，画布上显示为一条连线。</div></sc-if>
+<div class="sec">删除规则</div>
+<div class="chips"><sc-for list="{{pr.dels}}" as="c" hint-placeholder-count="3"><button class="{{c.cls}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div>
+<div class="row" style="flex-wrap: wrap"><button class="btn sm" onClick="{{pr.edit}}">编辑映射…</button><button class="btn sm" style="color: var(--danger)" onClick="{{pr.del}}">删除关系</button></div>
+</div>
+</sc-if>
+
+<sc-if value="{{isMulti}}" hint-placeholder-val="{{ false }}">
+<div class="pbody">
+<div style="font-weight: 600">已选择 {{multiN}} 张表</div>
+<div style="color: var(--text2)" class="mono">{{multiCodes}}</div>
+<div style="color: var(--text2)">拖动任意一张可整体移动。</div>
+<button class="btn" onClick="{{multiRemove}}">从当前关系图移除</button>
+</div>
+</sc-if>
+</div>
+</sc-if>
+</div>
+
+<sc-if value="{{checkOpen}}" hint-placeholder-val="{{ false }}">
+<div class="chk">
+<div class="ph" style="background: var(--panel)"><span>模型检查</span><span style="font-weight: 400; color: var(--text2)">{{checkSummary}}</span><sc-if value="{{checkStale}}" hint-placeholder-val="{{ false }}"><span class="badge">模型已更改，结果可能过期</span></sc-if><div class="sp"></div><button class="btn sm" onClick="{{actCheck}}">执行检查</button><button class="xb" onClick="{{toggleCheck}}" aria-label="收起模型检查面板"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"></path></svg></button></div>
+<div class="list">
+<sc-for list="{{issues}}" as="i" hint-placeholder-count="0"><button class="iss" onClick="{{i.go}}" title="点击定位到对象"><span class="{{i.lvCls}}">{{i.lvText}}</span><span class="fc">{{i.text}}</span><span class="mono fc" style="color: var(--text2)">{{i.obj}}</span></button></sc-for>
+<sc-if value="{{checkNone}}" hint-placeholder-val="{{ false }}"><div style="padding: 16px; color: var(--text2)">尚未执行检查。点击“执行检查”扫描字段代码、类型参数、主键和外键映射。</div></sc-if>
+<sc-if value="{{checkClean}}" hint-placeholder-val="{{ false }}"><div style="padding: 16px; color: var(--ok); font-weight: 600">检查通过，未发现问题。</div></sc-if>
+</div>
+</div>
+</sc-if>
+</sc-if>
+
+<div class="status">
+<sc-if value="{{showWork}}" hint-placeholder-val="{{ false }}">
+<span>{{stDb}}</span><span>表 {{stTables}}</span><span>关系 {{stRels}}</span>
+<button onClick="{{toggleCheck}}" title="展开或收起模型检查面板">{{stCheck}}</button>
+<sc-if value="{{hasCompat}}" hint-placeholder-val="{{ false }}"><button onClick="{{showCompat}}" style="color: var(--warn)">兼容性提示 {{compatN}}</button></sc-if>
+<div class="sp"></div>
+<span class="{{stSaveCls}}" aria-live="polite">{{stSave}}</span>
+</sc-if>
+<sc-if value="{{showWelcome}}" hint-placeholder-val="{{ true }}"><span>未打开模型</span><div class="sp"></div><span>原型使用本地模拟数据，不读写本机文件</span></sc-if>
+</div>
+
+<sc-if value="{{hasPop}}" hint-placeholder-val="{{ false }}"><div class="back" onMouseDown="{{closePop}}" onContextMenu="{{closePopCtx}}"></div></sc-if>
+<sc-if value="{{hasCtx}}" hint-placeholder-val="{{ false }}">
+<div class="menu fx" style="left: {{ctxX}}px; top: {{ctxY}}px">
+<sc-for list="{{ctxItems}}" as="it" hint-placeholder-count="0">
+<sc-if value="{{it.sep}}" hint-placeholder-val="{{ false }}"><div class="msep"></div></sc-if>
+<sc-if value="{{it.item}}" hint-placeholder-val="{{ true }}"><button class="{{it.cls}}" disabled="{{it.disabled}}" onClick="{{it.click}}"><span>{{it.label}}</span><span class="k">{{it.hint}}</span></button></sc-if>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{dImport}}" hint-placeholder-val="{{ false }}">
+<div class="dlgbg">
+<div class="dlg" role="dialog" aria-label="导入 PDM" style="width: 520px">
+<div class="dh"><span>导入 PDM</span><span class="badge">演示流程</span><div class="sp"></div><button class="xb" onClick="{{closeDlg}}" aria-label="关闭"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"></path></svg></button></div>
+<sc-if value="{{imPick}}" hint-placeholder-val="{{ true }}">
+<div class="db">
+<div class="note">原型不读取本机文件。请选择一个内置演示文件，体验对应的导入结果。</div>
+<sc-for list="{{imFiles}}" as="f" hint-placeholder-count="3"><button class="wcard" onClick="{{f.pick}}"><span style="flex: 1; min-width: 0"><span class="t mono">{{f.file}}</span><br><span class="d">{{f.desc}}</span></span><span class="dbt">{{f.tag}}</span></button></sc-for>
+<button class="btn" style="align-self: flex-start" onClick="{{imReal}}">选择本机文件…</button>
+</div>
+</sc-if>
+<sc-if value="{{imLoad}}" hint-placeholder-val="{{ false }}">
+<div class="db">
+<div>正在导入 <span class="mono" style="font-weight: 600">{{imFile}}</span></div>
+<div class="steps" aria-live="polite"><sc-for list="{{imSteps}}" as="st" hint-placeholder-count="4"><div class="{{st.cls}}"><i></i><span>{{st.label}}</span></div></sc-for></div>
+</div>
+<div class="df"><button class="btn" onClick="{{closeDlg}}">取消导入</button></div>
+</sc-if>
+<sc-if value="{{imFail}}" hint-placeholder-val="{{ false }}">
+<div class="db">
+<div style="font-weight: 600; color: var(--danger)">导入失败：无法解析 <span class="mono">{{imFile}}</span></div>
+<div class="steps"><sc-for list="{{imSteps}}" as="st" hint-placeholder-count="4"><div class="{{st.cls}}"><i></i><span>{{st.label}}</span></div></sc-for></div>
+<div class="note err"><div style="font-weight: 600">PDM XML 结构不完整</div><div class="mono" style="margin-top: 4px">第 1284 行：元素 &lt;c:Columns&gt; 未闭合，文件可能被截断。</div><div style="margin-top: 4px">模型未被打开，当前工作区没有任何更改。请用 PowerDesigner 重新另存为 XML 格式的 PDM 后再试。</div></div>
+</div>
+<div class="df"><button class="btn" onClick="{{imBack}}">选择其他文件</button><button class="btn pri" onClick="{{imRetry}}">重试</button></div>
+</sc-if>
+<sc-if value="{{imCompat}}" hint-placeholder-val="{{ false }}">
+<div class="db">
+<div><span class="mono" style="font-weight: 600">{{imFile}}</span> 已解析，其中 {{compatN}} 类属性暂不支持编辑。</div>
+<sc-for list="{{compat}}" as="c" hint-placeholder-count="3"><div class="note warn"><div style="font-weight: 600">{{c.t}} <span style="font-weight: 400">· {{c.n}}</span></div><div>{{c.d}}</div></div></sc-for>
+<div style="color: var(--text2)">这些内容会原样保留并在保存时写回，不会丢失。之后可从状态栏的“兼容性提示”再次查看。</div>
+</div>
+<div class="df"><button class="btn" onClick="{{closeDlg}}">{{compatCancel}}</button><sc-if value="{{compatOpenable}}" hint-placeholder-val="{{ false }}"><button class="btn pri" onClick="{{imOpen}}">继续打开</button></sc-if></div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{dDel}}" hint-placeholder-val="{{ false }}">
+<div class="dlgbg">
+<div class="dlg" role="alertdialog" aria-label="从模型删除表">
+<div class="dh"><span>从模型删除表</span></div>
+<div class="db">
+<div>将从整个模型删除 <span class="mono" style="font-weight: 600">{{del.code}}</span>（{{del.name}}），包括它的 {{del.fields}} 个字段，并从 {{del.dgs}} 张关系图中移除。</div>
+<sc-if value="{{del.hasRels}}" hint-placeholder-val="{{ false }}">
+<div class="note err"><div style="font-weight: 600; margin-bottom: 4px">以下 {{del.relN}} 条关系会被一并删除：</div>
+<sc-for list="{{del.rels}}" as="r" hint-placeholder-count="0"><div class="mono">{{r.code}} · {{r.parent}} → {{r.child}}</div></sc-for></div>
+</sc-if>
+<sc-if value="{{del.noRels}}" hint-placeholder-val="{{ false }}"><div class="note">没有关系引用这张表。</div></sc-if>
+<div style="color: var(--text2)">如果只想让它不出现在当前图中，请改用“从当前关系图移除”——表和关系仍保留在模型里。</div>
+</div>
+<div class="df"><button class="btn" onClick="{{closeDlg}}">取消</button><button class="btn" onClick="{{del.removeOnly}}" disabled="{{del.notInDg}}">仅从当前关系图移除</button><button class="btn dng" onClick="{{del.confirm}}">从模型删除</button></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{dClose}}" hint-placeholder-val="{{ false }}">
+<div class="dlgbg">
+<div class="dlg" role="alertdialog" aria-label="关闭未保存的文件">
+<div class="dh"><span>保存对 <span class="mono">{{cl.file}}</span> 的更改？</span></div>
+<div class="db"><div>这个文件有未保存的更改。不保存就关闭会丢失这些更改。</div></div>
+<div class="df"><button class="btn" onClick="{{cl.discard}}" style="margin-right: auto; color: var(--danger)">不保存</button><button class="btn" onClick="{{closeDlg}}">取消</button><button class="btn pri" onClick="{{cl.save}}">保存并关闭</button></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{dRename}}" hint-placeholder-val="{{ false }}">
+<div class="dlgbg">
+<div class="dlg" role="dialog" aria-label="重命名表" style="width: 380px">
+<div class="dh"><span>重命名表</span></div>
+<div class="db">
+<label class="fl"><span>名称</span><input class="inp" value="{{rn.name}}" onChange="{{rn.setName}}"></label>
+<label class="fl"><span>代码（数据库对象名）</span><input class="{{rn.codeCls}}" value="{{rn.code}}" onChange="{{rn.setCode}}"></label>
+<sc-if value="{{rn.bad}}" hint-placeholder-val="{{ false }}"><div style="color: var(--danger)">{{rn.err}}</div></sc-if>
+</div>
+<div class="df"><button class="btn" onClick="{{closeDlg}}">取消</button><button class="btn pri" disabled="{{rn.bad}}" onClick="{{rn.ok}}">确定</button></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{dNewModel}}" hint-placeholder-val="{{ false }}">
+<div class="dlgbg">
+<div class="dlg" role="dialog" aria-label="新建空白模型" style="width: 400px">
+<div class="dh"><span>新建空白模型</span></div>
+<div class="db">
+<label class="fl"><span>模型名称</span><input class="inp" value="{{nm.name}}" onChange="{{nm.setName}}"></label>
+<label class="fl"><span>目标数据库</span><select class="inp" value="{{nm.db}}" onChange="{{nm.setDb}}"><option value="oracle">Oracle 11g</option><option value="mysql">MySQL 8.0</option><option value="pg">PostgreSQL 15</option></select></label>
+<div style="color: var(--text2)">目标数据库决定可选数据类型和专属属性。</div>
+</div>
+<div class="df"><button class="btn" onClick="{{closeDlg}}">取消</button><button class="btn pri" onClick="{{nm.ok}}">创建</button></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{dNewRel}}" hint-placeholder-val="{{ false }}">
+<div class="dlgbg">
+<div class="dlg" role="dialog" aria-label="新建关系" style="width: 520px">
+<div class="dh"><span>新建关系</span></div>
+<div class="db">
+<div class="fl"><span>父表（被引用，一方）</span><div class="chips"><sc-for list="{{nr.parents}}" as="c" hint-placeholder-count="3"><button class="{{c.cls}}" disabled="{{c.disabled}}" title="{{c.tip}}" onClick="{{c.pick}}"><span class="mono">{{c.label}}</span></button></sc-for></div></div>
+<div class="fl"><span>子表（外键所在表，多方）</span><div class="chips"><sc-for list="{{nr.children}}" as="c" hint-placeholder-count="3"><button class="{{c.cls}}" onClick="{{c.pick}}"><span class="mono">{{c.label}}</span></button></sc-for></div></div>
+<div style="color: var(--text2)">下一步将在子表的“外键”页中确认字段映射，应用后关系才会写入模型。</div>
+</div>
+<div class="df"><button class="btn" onClick="{{closeDlg}}">取消</button><button class="btn pri" disabled="{{nr.bad}}" onClick="{{nr.ok}}">下一步：设置字段映射</button></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{dAbout}}" hint-placeholder-val="{{ false }}">
+<div class="dlgbg">
+<div class="dlg" role="dialog" aria-label="关于本原型" style="width: 560px">
+<div class="dh"><span>关于本原型</span><div class="sp"></div><button class="xb" onClick="{{closeDlg}}" aria-label="关闭"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"></path></svg></button></div>
+<div class="db">
+<div class="sec" style="border: 0; padding: 0">真实可操作（基于内存中的模拟数据）</div>
+<div>模型浏览与搜索、画布缩放 / 平移 / 框选 / 拖动、表结构编辑与校验、关系查看与编辑、撤销 / 重做、自动布局、模型检查、SQL 预览、主题切换。</div>
+<div class="sec">演示行为（不产生真实文件操作）</div>
+<div>导入 PDM：从内置演示文件中选择，不解析真实文件。保存：只更新保存状态，不写入磁盘。最近文件：固定的演示条目。</div>
+<div class="sec">尚未实现</div>
+<div>另存为、切换目标数据库、数据库连接与逆向工程、视图和序列的编辑、导出图片。</div>
+<div class="sec">快捷键</div>
+<dl class="kv" style="margin: 0"><dt>撤销 / 重做</dt><dd class="mono">{{kUndo}} / {{kRedo}}</dd><dt>保存</dt><dd class="mono">{{kSave}}</dd><dt>缩放画布</dt><dd class="mono">{{kZoom}} + 滚轮</dd><dt>平移画布</dt><dd>滚轮、鼠标中键拖动，或平移工具</dd></dl>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{hasEd}}" hint-placeholder-val="{{ false }}">
+<div class="dlgbg">
+<div class="dlg big" role="dialog" aria-label="表结构编辑">
+<div class="dh"><span>表结构</span><span class="mono">{{ed.code}}</span><span style="font-weight: 400; color: var(--text2)">{{ed.name}}</span><span class="dbt">{{ed.db}}</span><div class="sp"></div><button class="xb" onClick="{{ed.cancel}}" aria-label="取消并关闭"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"></path></svg></button></div>
+<div class="etabs" role="tablist"><sc-for list="{{ed.tabs}}" as="tb" hint-placeholder-count="6"><button class="{{tb.cls}}" role="tab" onClick="{{tb.pick}}">{{tb.label}}<sc-if value="{{tb.err}}" hint-placeholder-val="{{ false }}"><span class="cnt">{{tb.err}}</span></sc-if></button></sc-for></div>
+
+<sc-if value="{{ed.tBasic}}" hint-placeholder-val="{{ false }}">
+<div class="db">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<label class="fl"><span>名称（用于阅读和文档）</span><input class="inp" value="{{ed.name}}" onChange="{{ed.setName}}"></label>
+<label class="fl"><span>代码（数据库对象名）</span><input class="{{ed.codeCls}}" value="{{ed.code}}" onChange="{{ed.setCode}}"></label>
+</div>
+<sc-if value="{{ed.codeBad}}" hint-placeholder-val="{{ false }}"><div style="color: var(--danger)">{{ed.codeErr}}</div></sc-if>
+<label class="fl"><span>注释</span><textarea class="inp" value="{{ed.comment}}" onChange="{{ed.setComment}}"></textarea></label>
+<div class="card">
+<div style="font-weight: 600">{{ed.db}} 专属属性</div>
+<div class="fl"><span>主键生成方式</span><div class="chips"><sc-for list="{{ed.autos}}" as="c" hint-placeholder-count="2"><button class="{{c.cls}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div></div>
+<sc-if value="{{ed.showSeq}}" hint-placeholder-val="{{ false }}"><label class="fl" style="max-width: 320px"><span>序列名</span><input class="inp mono" value="{{ed.seq}}" onChange="{{ed.setSeq}}"></label></sc-if>
+<sc-if value="{{ed.isOracle}}" hint-placeholder-val="{{ false }}"><label class="fl" style="max-width: 320px"><span>表空间</span><input class="inp mono" value="{{ed.tablespace}}" onChange="{{ed.setTablespace}}"></label></sc-if>
+<sc-if value="{{ed.isMysql}}" hint-placeholder-val="{{ false }}">
+<div class="fl"><span>存储引擎</span><div class="chips"><sc-for list="{{ed.engines}}" as="c" hint-placeholder-count="2"><button class="{{c.cls}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div></div>
+<label class="fl" style="max-width: 320px"><span>默认字符集</span><input class="inp mono" value="{{ed.charset}}" onChange="{{ed.setCharset}}"></label>
+</sc-if>
+<div class="note">{{ed.dbNote}}</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ed.tFields}}" hint-placeholder-val="{{ true }}">
+<div class="db">
+<div class="row"><button class="btn sm pri" onClick="{{ed.addField}}"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10"></path></svg>新增字段</button><span style="color: var(--text2)">数据类型按 {{ed.db}} 提供候选；斜纹单元格表示该类型不适用此参数。</span><div class="sp"></div><span style="color: var(--text2)">{{ed.fieldCount}} 个字段</span></div>
+<div class="gridw">
+<div class="gr hd"><span>#</span><span>PK</span><span>字段代码</span><span>中文名称</span><span>数据类型</span><span>长度</span><span>精度</span><span>小数位</span><span>允许为空</span><span>默认值</span><span>注释</span><span>操作</span></div>
+<sc-for list="{{ed.fields}}" as="f" hint-placeholder-count="0">
+<div class="{{f.cls}}">
+<span class="c mono">{{f.no}}</span>
+<span class="c"><input type="checkbox" checked="{{f.pk}}" onChange="{{f.togPk}}" aria-label="主键"></span>
+<input class="{{f.codeCls}}" value="{{f.code}}" onChange="{{f.setCode}}" onFocus="{{f.focus}}" aria-label="字段代码">
+<input class="cell" value="{{f.name}}" onChange="{{f.setName}}" onFocus="{{f.focus}}" aria-label="中文名称">
+<input class="{{f.typeCls}}" value="{{f.type}}" onChange="{{f.setType}}" onFocus="{{f.focus}}" list="{{ed.typeList}}" aria-label="数据类型">
+<input class="{{f.lenCls}}" value="{{f.len}}" disabled="{{f.noLen}}" onChange="{{f.setLen}}" onFocus="{{f.focus}}" aria-label="长度">
+<input class="{{f.precCls}}" value="{{f.prec}}" disabled="{{f.noPrec}}" onChange="{{f.setPrec}}" onFocus="{{f.focus}}" aria-label="精度">
+<input class="cell mono" value="{{f.scale}}" disabled="{{f.noScale}}" onChange="{{f.setScale}}" onFocus="{{f.focus}}" aria-label="小数位">
+<span class="c"><input type="checkbox" checked="{{f.nullable}}" disabled="{{f.pk}}" onChange="{{f.togNull}}" aria-label="允许为空"></span>
+<input class="cell mono" value="{{f.def}}" onChange="{{f.setDef}}" onFocus="{{f.focus}}" aria-label="默认值">
+<input class="cell" value="{{f.comment}}" onChange="{{f.setComment}}" onFocus="{{f.focus}}" aria-label="注释">
+<span class="ops"><button class="xb" disabled="{{f.first}}" onClick="{{f.up}}" aria-label="上移" title="上移"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 10l4-4 4 4"></path></svg></button><button class="xb" disabled="{{f.last}}" onClick="{{f.down}}" aria-label="下移" title="下移"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"></path></svg></button><button class="xb" onClick="{{f.del}}" aria-label="删除字段" title="删除字段" style="color: var(--danger)"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"></path></svg></button></span>
+<sc-if value="{{f.hasErr}}" hint-placeholder-val="{{ false }}"><div class="rerr">{{f.err}}</div></sc-if>
+<sc-if value="{{f.hasWarn}}" hint-placeholder-val="{{ false }}"><div class="rwarn">{{f.warn}}</div></sc-if>
+</div>
+</sc-for>
+<sc-if value="{{ed.noFields}}" hint-placeholder-val="{{ false }}"><div style="padding: 20px; color: var(--text2)">这张表还没有字段。点击“新增字段”。</div></sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ed.tKeys}}" hint-placeholder-val="{{ false }}">
+<div class="db">
+<div class="card">
+<div class="row"><span style="font-weight: 600">主键</span><input class="inp mono" style="max-width: 260px" value="{{ed.pkName}}" onChange="{{ed.setPkName}}" aria-label="主键约束名"></div>
+<div class="chips"><sc-for list="{{ed.pkChips}}" as="c" hint-placeholder-count="0"><button class="{{c.cls}}" onClick="{{c.pick}}"><span class="mono">{{c.label}}</span></button></sc-for></div>
+<sc-if value="{{ed.noPk}}" hint-placeholder-val="{{ false }}"><div style="color: var(--danger)">尚未指定主键字段，模型检查会报告此问题。</div></sc-if>
+</div>
+<div class="row"><span style="font-weight: 600">唯一约束</span><button class="btn sm" onClick="{{ed.addUk}}">添加唯一约束</button></div>
+<sc-for list="{{ed.uks}}" as="u" hint-placeholder-count="0">
+<div class="card">
+<div class="row"><input class="inp mono" style="max-width: 260px" value="{{u.code}}" onChange="{{u.setCode}}" aria-label="唯一约束名"><div class="sp"></div><button class="btn sm" style="color: var(--danger)" onClick="{{u.del}}">删除</button></div>
+<div class="chips"><sc-for list="{{u.chips}}" as="c" hint-placeholder-count="0"><button class="{{c.cls}}" onClick="{{c.pick}}"><span class="mono">{{c.label}}</span></button></sc-for></div>
+</div>
+</sc-for>
+<sc-if value="{{ed.noUks}}" hint-placeholder-val="{{ false }}"><div style="color: var(--text2)">没有唯一约束。</div></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ed.tFks}}" hint-placeholder-val="{{ false }}">
+<div class="db">
+<div class="row"><span style="font-weight: 600">本表的外键（本表为子表）</span><button class="btn sm" disabled="{{ed.noParents}}" onClick="{{ed.addFk}}">添加外键</button></div>
+<sc-for list="{{ed.fks}}" as="r" hint-placeholder-count="0">
+<div class="card">
+<div class="row" style="flex-wrap: wrap"><input class="inp mono" style="max-width: 260px" value="{{r.code}}" onChange="{{r.setCode}}" aria-label="外键约束名"><span style="color: var(--text2)">引用</span><span class="mono" style="font-weight: 600">{{r.parent}}</span><div class="sp"></div><button class="btn sm" style="color: var(--danger)" onClick="{{r.del}}">删除</button></div>
+<sc-if value="{{r.isNew}}" hint-placeholder-val="{{ false }}"><div class="fl"><span>父表</span><div class="chips"><sc-for list="{{r.parents}}" as="c" hint-placeholder-count="0"><button class="{{c.cls}}" onClick="{{c.pick}}"><span class="mono">{{c.label}}</span></button></sc-for></div></div></sc-if>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr); gap: 6px 8px; align-items: center; max-width: 640px">
+<span style="font-size: 11px; color: var(--text2)">父表字段</span><span></span><span style="font-size: 11px; color: var(--text2)">本表字段（输入或选择字段代码）</span>
+<sc-for list="{{r.pairs}}" as="p" hint-placeholder-count="1"><span class="mono">{{p.p}} <span style="color: var(--text3)">{{p.pt}}</span></span><span style="color: var(--text3)">→</span><input class="{{p.cls}}" value="{{p.c}}" onChange="{{p.set}}" list="ed-cols" placeholder="未映射" aria-label="本表字段"></sc-for>
+</div>
+<sc-if value="{{r.bad}}" hint-placeholder-val="{{ false }}"><div style="color: var(--danger)">{{r.err}}</div></sc-if>
+<div class="row" style="flex-wrap: wrap"><span style="font-size: 11px; color: var(--text2)">删除规则</span><div class="chips"><sc-for list="{{r.dels}}" as="c" hint-placeholder-count="3"><button class="{{c.cls}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div></div>
+</div>
+</sc-for>
+<sc-if value="{{ed.noFks}}" hint-placeholder-val="{{ false }}"><div style="color: var(--text2)">本表没有外键。</div></sc-if>
+<div style="font-weight: 600; margin-top: 6px">引用本表的关系（只读）</div>
+<sc-for list="{{ed.inbound}}" as="r" hint-placeholder-count="0"><div class="mono">{{r.code}} · {{r.child}} ({{r.cols}})</div></sc-for>
+<sc-if value="{{ed.noInbound}}" hint-placeholder-val="{{ false }}"><div style="color: var(--text2)">没有其他表引用本表。</div></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ed.tIdx}}" hint-placeholder-val="{{ false }}">
+<div class="db">
+<div class="row"><span style="font-weight: 600">索引</span><button class="btn sm" onClick="{{ed.addIdx}}">添加索引</button></div>
+<sc-for list="{{ed.idx}}" as="u" hint-placeholder-count="0">
+<div class="card">
+<div class="row"><input class="inp mono" style="max-width: 260px" value="{{u.code}}" onChange="{{u.setCode}}" aria-label="索引名"><label class="row" style="gap: 4px"><input type="checkbox" checked="{{u.unique}}" onChange="{{u.togUnique}}"><span>唯一</span></label><div class="sp"></div><button class="btn sm" style="color: var(--danger)" onClick="{{u.del}}">删除</button></div>
+<div class="chips"><sc-for list="{{u.chips}}" as="c" hint-placeholder-count="0"><button class="{{c.cls}}" onClick="{{c.pick}}"><span class="mono">{{c.label}}</span></button></sc-for></div>
+</div>
+</sc-for>
+<sc-if value="{{ed.noIdx}}" hint-placeholder-val="{{ false }}"><div style="color: var(--text2)">没有索引。主键和唯一约束会由数据库自动建立索引。</div></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ed.tSql}}" hint-placeholder-val="{{ false }}">
+<div class="db">
+<div class="row"><span style="color: var(--text2)">根据当前未应用的编辑内容生成，方言：{{ed.db}}</span><div class="sp"></div><button class="btn sm" onClick="{{ed.copySql}}">复制</button></div>
+<pre class="sql">{{ed.sql}}</pre>
+</div>
+</sc-if>
+
+<div class="df">
+<span style="margin-right: auto" class="{{ed.sumCls}}">{{ed.summary}}</span>
+<button class="btn" onClick="{{ed.cancel}}">取消</button>
+<button class="btn pri" disabled="{{ed.blocked}}" title="{{ed.applyTip}}" onClick="{{ed.apply}}">应用</button>
+</div>
+</div>
+</div>
+<datalist id="ed-cols"><sc-for list="{{ed.colOpts}}" as="o" hint-placeholder-count="0"><option value="{{o.v}}"></option></sc-for></datalist>
+</sc-if>
+
+<datalist id="dt-oracle"><option value="NUMBER"></option><option value="VARCHAR2"></option><option value="NVARCHAR2"></option><option value="CHAR"></option><option value="DATE"></option><option value="TIMESTAMP"></option><option value="CLOB"></option><option value="BLOB"></option><option value="RAW"></option><option value="FLOAT"></option></datalist>
+<datalist id="dt-mysql"><option value="BIGINT"></option><option value="INT"></option><option value="TINYINT"></option><option value="DECIMAL"></option><option value="VARCHAR"></option><option value="CHAR"></option><option value="TEXT"></option><option value="LONGTEXT"></option><option value="DATETIME"></option><option value="TIMESTAMP"></option><option value="DATE"></option><option value="JSON"></option><option value="BLOB"></option></datalist>
+<datalist id="dt-pg"><option value="BIGINT"></option><option value="INTEGER"></option><option value="SMALLINT"></option><option value="NUMERIC"></option><option value="VARCHAR"></option><option value="TEXT"></option><option value="BOOLEAN"></option><option value="TIMESTAMP"></option><option value="TIMESTAMPTZ"></option><option value="DATE"></option><option value="UUID"></option><option value="JSONB"></option><option value="BYTEA"></option></datalist>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}"><div class="toast" role="status" aria-live="polite">{{toast}}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"fieldDisplay":{"editor":"enum","options":["code","name","both"],"default":"code"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  S() { if (!this._s) { this._id = 0; this.mkK(); this._s = this.init(); } return this._s; }
+  up() { if (!this._dead) this.setState({ t: (this._t = (this._t || 0) + 1) }); }
+  componentWillUnmount() { this._dead = true; }
+  later(fn, ms) { setTimeout(() => { if (!this._dead) { fn(); this.up(); } }, ms); }
+  uid(p) { return p + '_' + (++this._id); }
+  clone(o) { return JSON.parse(JSON.stringify(o)); }
+  mkK() {
+    this.K = {
+      TYPES: {
+        oracle: ['NUMBER', 'VARCHAR2', 'NVARCHAR2', 'CHAR', 'DATE', 'TIMESTAMP', 'CLOB', 'BLOB', 'RAW', 'FLOAT'],
+        mysql: ['BIGINT', 'INT', 'TINYINT', 'DECIMAL', 'VARCHAR', 'CHAR', 'TEXT', 'LONGTEXT', 'DATETIME', 'TIMESTAMP', 'DATE', 'JSON', 'BLOB'],
+        pg: ['BIGINT', 'INTEGER', 'SMALLINT', 'NUMERIC', 'VARCHAR', 'TEXT', 'BOOLEAN', 'TIMESTAMP', 'TIMESTAMPTZ', 'DATE', 'UUID', 'JSONB', 'BYTEA']
+      },
+      LEN: ['VARCHAR2', 'NVARCHAR2', 'CHAR', 'VARCHAR', 'RAW'],
+      PREC: ['NUMBER', 'DECIMAL', 'NUMERIC', 'FLOAT', 'TIMESTAMP', 'TIMESTAMPTZ', 'DATETIME'],
+      SCALE: ['NUMBER', 'DECIMAL', 'NUMERIC'],
+      DBN: { oracle: 'Oracle 11g', mysql: 'MySQL 8.0', pg: 'PostgreSQL 15' },
+      IDLEN: { oracle: 30, mysql: 64, pg: 63 },
+      mac: typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform || '')
+    };
+  }
+  init() {
+    return { docs: [], active: null, theme: null, leftW: 268, rightW: 300, leftOpen: true, rightOpen: true, checkOpen: false, menu: null, ctx: null, dlg: null, ed: null, toast: null, q: '', tool: 'select', expanded: {}, grp: { tables: true, views: false, seqs: false }, marquee: null, flash: null, recentOn: true };
+  }
+
+  /* ---------- data: business model (no coordinates) ---------- */
+  pt(str) {
+    const m = /^(\w+)(?:\((\d+)(?:,(\d+))?\))?$/.exec(str); const T = m[1];
+    const o = { type: T, len: '', prec: '', scale: '' };
+    if (m[2]) { if (this.K.LEN.includes(T)) o.len = +m[2]; else { o.prec = +m[2]; if (m[3]) o.scale = +m[3]; } }
+    return o;
+  }
+  ft(f) {
+    const K = this.K, T = f.type;
+    if (K.LEN.includes(T) && f.len !== '') return T + '(' + f.len + ')';
+    if (K.PREC.includes(T) && f.prec !== '') return T + '(' + f.prec + (K.SCALE.includes(T) && f.scale !== '' ? ',' + f.scale : '') + ')';
+    return T;
+  }
+  tb(code, name, comment, opts, rows, uks, idx) {
+    const id = 'T.' + code;
+    return {
+      id, code, name, comment, opts, pkName: (code === code.toLowerCase() ? 'pk_' : 'PK_') + code,
+      fields: rows.map((r) => Object.assign({ id: code + '.' + r[0], code: r[0], name: r[1], nn: /[PN]/.test(r[3] || ''), pk: /P/.test(r[3] || ''), def: r[4] || '', comment: r[5] || '' }, this.pt(r[2]))),
+      uniques: (uks || []).map((u) => ({ id: this.uid('uk'), code: u[0], cols: u[1].map((c) => code + '.' + c) })),
+      indexes: (idx || []).map((u) => ({ id: this.uid('ix'), code: u[0], cols: u[1].map((c) => code + '.' + c), unique: !!u[2] }))
+    };
+  }
+  rl(code, name, p, c, pairs, del) {
+    return { id: 'R.' + code, code, name, parent: 'T.' + p, child: 'T.' + c, onDelete: del || 'NO ACTION', pairs: pairs.map((x) => ({ p: p + '.' + x[0], c: c + '.' + x[1] })) };
+  }
+  sample(kind) {
+    const t = (...a) => this.tb(...a), r = (...a) => this.rl(...a);
+    if (kind === 'oracle') {
+      const o = (seq) => ({ auto: 'seq', seq, tablespace: 'TBS_CSS_DATA' });
+      return {
+        file: 'customer_service.pdm',
+        model: {
+          name: '客户服务模型', code: 'CUSTOMER_SERVICE', db: 'oracle', owner: 'CSS', comment: '呼叫中心客户服务与外呼业务的物理数据模型。',
+          tables: [
+            t('CUSTOMER', '客户', '客户主档，呼入与外呼业务共用。', o('SEQ_CUSTOMER'), [
+              ['CUSTOMER_ID', '客户ID', 'NUMBER(18)', 'P', '', '主键，取自 SEQ_CUSTOMER'],
+              ['CUSTOMER_NO', '客户编号', 'VARCHAR2(32)', 'N', '', '业务侧唯一编号'],
+              ['CUSTOMER_NAME', '客户姓名', 'VARCHAR2(100)', 'N'],
+              ['MOBILE', '手机号', 'VARCHAR2(20)', 'N'],
+              ['ID_CARD_NO', '证件号码', 'VARCHAR2(32)', ''],
+              ['LEVEL_CODE', '客户等级', 'VARCHAR2(10)', 'N', "'NORMAL'", 'NORMAL / VIP / SVIP'],
+              ['STATUS', '状态', 'NUMBER(1)', 'N', '1', '1 有效，0 停用'],
+              ['REMARK', '备注', 'VARCHAR2(500)', ''],
+              ['CREATED_AT', '创建时间', 'TIMESTAMP(6)', 'N', 'SYSTIMESTAMP'],
+              ['UPDATED_AT', '更新时间', 'TIMESTAMP(6)', '']
+            ], [['UK_CUSTOMER_NO', ['CUSTOMER_NO']]], [['IDX_CUSTOMER_MOBILE', ['MOBILE']]]),
+            t('AGENT', '坐席', '呼叫中心坐席人员。', o('SEQ_AGENT'), [
+              ['AGENT_ID', '坐席ID', 'NUMBER(18)', 'P'],
+              ['AGENT_NO', '工号', 'VARCHAR2(32)', 'N'],
+              ['AGENT_NAME', '坐席姓名', 'VARCHAR2(60)', 'N'],
+              ['SKILL_GROUP', '技能组', 'VARCHAR2(40)', ''],
+              ['EXTENSION', '分机号', 'VARCHAR2', ''],
+              ['STATUS', '状态', 'NUMBER(1)', 'N', '1'],
+              ['CREATED_AT', '创建时间', 'TIMESTAMP(6)', 'N', 'SYSTIMESTAMP']
+            ], [['UK_AGENT_NO', ['AGENT_NO']]]),
+            t('CALL_RECORD', '通话记录', '一次呼入或呼出通话。', o('SEQ_CALL_RECORD'), [
+              ['CALL_ID', '通话ID', 'NUMBER(18)', 'P'],
+              ['CUSTOMER_ID', '客户ID', 'NUMBER(18)', 'N'],
+              ['AGENT_ID', '坐席ID', 'NUMBER(18)', 'N'],
+              ['TASK_ID', '外呼任务ID', 'NUMBER(18)', '', '', '呼入通话为空'],
+              ['ITEM_SEQ', '任务明细序号', 'NUMBER(10)', '', '', '呼入通话为空'],
+              ['DIRECTION', '呼叫方向', 'VARCHAR2(10)', 'N', '', 'IN 呼入 / OUT 呼出'],
+              ['START_AT', '开始时间', 'TIMESTAMP(6)', 'N'],
+              ['END_AT', '结束时间', 'TIMESTAMP(6)', ''],
+              ['DURATION_SEC', '通话时长(秒)', 'NUMBER(10)', '', '0'],
+              ['RESULT_CODE', '通话结果', 'VARCHAR2(20)', ''],
+              ['SUMMARY', '通话小结', 'CLOB', '']
+            ], [], [['IDX_CALL_CUSTOMER', ['CUSTOMER_ID']], ['IDX_CALL_AGENT_START', ['AGENT_ID', 'START_AT']]]),
+            t('CALL_TASK', '外呼任务', '批量外呼任务。', o('SEQ_CALL_TASK'), [
+              ['TASK_ID', '任务ID', 'NUMBER(18)', 'P'],
+              ['TASK_NAME', '任务名称', 'VARCHAR2(100)', 'N'],
+              ['TASK_TYPE', '任务类型', 'VARCHAR2(20)', 'N'],
+              ['OWNER_AGENT_ID', '负责坐席ID', 'NUMBER(10)', ''],
+              ['PLAN_START_AT', '计划开始时间', 'TIMESTAMP(6)', ''],
+              ['PLAN_END_AT', '计划结束时间', 'TIMESTAMP(6)', ''],
+              ['STATUS', '状态', 'VARCHAR2(20)', 'N', "'DRAFT'"],
+              ['SCRIPT_CONTENT', '话术内容', 'CLOB', ''],
+              ['CREATED_AT', '创建时间', 'TIMESTAMP(6)', 'N', 'SYSTIMESTAMP']
+            ]),
+            t('CALL_TASK_ITEM', '外呼任务明细', '外呼任务下的待呼客户。', { auto: 'none', seq: '', tablespace: 'TBS_CSS_DATA' }, [
+              ['TASK_ID', '任务ID', 'NUMBER(18)', 'P'],
+              ['ITEM_SEQ', '明细序号', 'NUMBER(10)', 'P'],
+              ['CUSTOMER_ID', '客户ID', 'NUMBER(18)', 'N'],
+              ['DIAL_STATUS', '拨打状态', 'VARCHAR2(20)', 'N', "'PENDING'"],
+              ['RETRY_COUNT', '重试次数', 'NUMBER(3)', 'N', '0'],
+              ['LAST_DIAL_AT', '最近拨打时间', 'TIMESTAMP(6)', '']
+            ], [], [['IDX_ITEM_CUSTOMER', ['CUSTOMER_ID']]]),
+            t('RECORDING', '录音文件', '通话对应的录音文件。', o('SEQ_RECORDING'), [
+              ['RECORDING_ID', '录音ID', 'NUMBER(18)', 'P'],
+              ['CALL_ID', '通话ID', 'NUMBER(18)', 'N'],
+              ['FILE_PATH', '文件路径', 'VARCHAR2(500)', 'N'],
+              ['FILE_SIZE', '文件大小(字节)', 'NUMBER(18)', ''],
+              ['FORMAT', '音频格式', 'VARCHAR2(10)', '', "'WAV'"],
+              ['DURATION_SEC', '时长(秒)', 'NUMBER(10)', ''],
+              ['TRANSCRIPT', '', 'CLOB', ''],
+              ['CREATED_AT', '创建时间', 'TIMESTAMP(6)', 'N', 'SYSTIMESTAMP']
+            ], [], [['IDX_RECORDING_CALL', ['CALL_ID']]])
+          ],
+          relations: [
+            r('FK_CALL_CUSTOMER', '客户的通话记录', 'CUSTOMER', 'CALL_RECORD', [['CUSTOMER_ID', 'CUSTOMER_ID']]),
+            r('FK_CALL_AGENT', '坐席的通话记录', 'AGENT', 'CALL_RECORD', [['AGENT_ID', 'AGENT_ID']]),
+            r('FK_CALL_TASK_ITEM', '任务明细产生的通话', 'CALL_TASK_ITEM', 'CALL_RECORD', [['TASK_ID', 'TASK_ID'], ['ITEM_SEQ', 'ITEM_SEQ']]),
+            r('FK_ITEM_TASK', '任务的明细', 'CALL_TASK', 'CALL_TASK_ITEM', [['TASK_ID', 'TASK_ID']], 'CASCADE'),
+            r('FK_ITEM_CUSTOMER', '明细对应的客户', 'CUSTOMER', 'CALL_TASK_ITEM', [['CUSTOMER_ID', 'CUSTOMER_ID']]),
+            r('FK_TASK_AGENT', '任务负责坐席', 'AGENT', 'CALL_TASK', [['AGENT_ID', 'OWNER_AGENT_ID']]),
+            r('FK_RECORDING_CALL', '通话的录音', 'CALL_RECORD', 'RECORDING', [['CALL_ID', 'CALL_ID']], 'CASCADE')
+          ],
+          views: [{ code: 'V_AGENT_CALL_STAT', name: '坐席通话统计' }],
+          sequences: [{ code: 'SEQ_CUSTOMER', name: '客户ID' }, { code: 'SEQ_AGENT', name: '坐席ID' }, { code: 'SEQ_CALL_RECORD', name: '通话ID' }, { code: 'SEQ_CALL_TASK', name: '任务ID' }, { code: 'SEQ_RECORDING', name: '录音ID' }]
+        },
+        layout: [
+          ['全景图', [['CUSTOMER', 40, 40], ['AGENT', 40, 340], ['CALL_RECORD', 356, 130, 1], ['RECORDING', 672, 40], ['CALL_TASK', 672, 300], ['CALL_TASK_ITEM', 356, 440]]],
+          ['外呼业务', [['AGENT', 40, 60], ['CALL_TASK', 356, 40], ['CALL_TASK_ITEM', 672, 80], ['CUSTOMER', 356, 320]]]
+        ]
+      };
+    }
+    if (kind === 'mysql') {
+      const o = { auto: 'auto', engine: 'InnoDB', charset: 'utf8mb4' };
+      return {
+        file: 'order_center.pdm',
+        model: {
+          name: '订单中心模型', code: 'order_center', db: 'mysql', owner: 'order_center', comment: '会员、商品与订单。',
+          tables: [
+            t('customer_account', '会员账户', '', Object.assign({}, o), [
+              ['account_id', '账户ID', 'BIGINT', 'P'], ['login_name', '登录名', 'VARCHAR(64)', 'N'], ['mobile', '手机号', 'VARCHAR(20)', ''],
+              ['status', '状态', 'TINYINT', 'N', '1'], ['profile', '扩展资料', 'JSON', ''], ['created_at', '创建时间', 'DATETIME(3)', 'N', 'CURRENT_TIMESTAMP(3)']
+            ], [['uk_account_login', ['login_name']]]),
+            t('product', '商品', '', Object.assign({}, o), [
+              ['product_id', '商品ID', 'BIGINT', 'P'], ['sku_code', 'SKU 编码', 'VARCHAR(40)', 'N'], ['title', '商品标题', 'VARCHAR(200)', 'N'],
+              ['price', '售价', 'DECIMAL(12,2)', 'N'], ['detail', '商品详情', 'TEXT', '']
+            ], [['uk_product_sku', ['sku_code']]]),
+            t('sales_order', '订单', '', Object.assign({}, o), [
+              ['order_id', '订单ID', 'BIGINT', 'P'], ['account_id', '账户ID', 'BIGINT', 'N'], ['order_no', '订单号', 'VARCHAR(32)', 'N'],
+              ['total_amount', '订单金额', 'DECIMAL(12,2)', 'N'], ['status', '状态', 'VARCHAR(20)', 'N', "'CREATED'"], ['paid_at', '支付时间', 'DATETIME(3)', ''],
+              ['created_at', '创建时间', 'DATETIME(3)', 'N', 'CURRENT_TIMESTAMP(3)']
+            ], [['uk_order_no', ['order_no']]], [['idx_order_account', ['account_id']]]),
+            t('sales_order_item', '订单明细', '', Object.assign({}, o), [
+              ['item_id', '明细ID', 'BIGINT', 'P'], ['order_id', '订单ID', 'BIGINT', 'N'], ['product_id', '商品ID', 'BIGINT', 'N'],
+              ['quantity', '数量', 'INT', 'N'], ['unit_price', '成交单价', 'DECIMAL(12,2)', 'N']
+            ])
+          ],
+          relations: [
+            r('fk_order_account', '会员的订单', 'customer_account', 'sales_order', [['account_id', 'account_id']]),
+            r('fk_item_order', '订单的明细', 'sales_order', 'sales_order_item', [['order_id', 'order_id']], 'CASCADE'),
+            r('fk_item_product', '明细的商品', 'product', 'sales_order_item', [['product_id', 'product_id']])
+          ],
+          views: [], sequences: []
+        },
+        layout: [['订单关系图', [['customer_account', 40, 40], ['sales_order', 356, 40], ['sales_order_item', 672, 70], ['product', 356, 300]]]]
+      };
+    }
+    const o = { auto: 'identity' };
+    return {
+      file: 'issue_tracker.pdm',
+      model: {
+        name: '工单协作模型', code: 'issue_tracker', db: 'pg', owner: 'tracker', comment: '项目、工单与评论。',
+        tables: [
+          t('app_user', '用户', '', Object.assign({}, o), [
+            ['user_id', '用户ID', 'BIGINT', 'P'], ['email', '邮箱', 'VARCHAR(255)', 'N'], ['display_name', '显示名', 'VARCHAR(80)', 'N'],
+            ['is_active', '是否启用', 'BOOLEAN', 'N', 'true'], ['created_at', '创建时间', 'TIMESTAMPTZ', 'N', 'now()']
+          ], [['uk_user_email', ['email']]]),
+          t('project', '项目', '', Object.assign({}, o), [
+            ['project_id', '项目ID', 'BIGINT', 'P'], ['project_key', '项目标识', 'VARCHAR(16)', 'N'], ['name', '项目名称', 'VARCHAR(120)', 'N'],
+            ['owner_id', '负责人ID', 'BIGINT', 'N'], ['settings', '项目设置', 'JSONB', '']
+          ], [['uk_project_key', ['project_key']]]),
+          t('issue', '工单', '', Object.assign({}, o), [
+            ['issue_id', '工单ID', 'BIGINT', 'P'], ['project_id', '项目ID', 'BIGINT', 'N'], ['reporter_id', '报告人ID', 'BIGINT', 'N'],
+            ['title', '标题', 'VARCHAR(200)', 'N'], ['body', '描述', 'TEXT', ''], ['status', '状态', 'VARCHAR(20)', 'N', "'open'"],
+            ['external_ref', '外部引用', 'UUID', ''], ['created_at', '创建时间', 'TIMESTAMPTZ', 'N', 'now()']
+          ], [], [['idx_issue_project_status', ['project_id', 'status']]]),
+          t('issue_comment', '工单评论', '', Object.assign({}, o), [
+            ['comment_id', '评论ID', 'BIGINT', 'P'], ['issue_id', '工单ID', 'BIGINT', 'N'], ['author_id', '作者ID', 'BIGINT', 'N'],
+            ['body', '内容', 'TEXT', 'N'], ['created_at', '创建时间', 'TIMESTAMPTZ', 'N', 'now()']
+          ])
+        ],
+        relations: [
+          r('fk_project_owner', '项目负责人', 'app_user', 'project', [['user_id', 'owner_id']]),
+          r('fk_issue_project', '项目的工单', 'project', 'issue', [['project_id', 'project_id']], 'CASCADE'),
+          r('fk_issue_reporter', '工单报告人', 'app_user', 'issue', [['user_id', 'reporter_id']]),
+          r('fk_comment_issue', '工单的评论', 'issue', 'issue_comment', [['issue_id', 'issue_id']], 'CASCADE'),
+          r('fk_comment_author', '评论作者', 'app_user', 'issue_comment', [['user_id', 'author_id']])
+        ],
+        views: [], sequences: []
+      },
+      layout: [['工单关系图', [['app_user', 40, 60], ['project', 356, 40], ['issue', 672, 40], ['issue_comment', 672, 330]]]]
+    };
+  }
+
+  /* ---------- documents: model + layout kept separately ---------- */
+  mkDoc(src, sampleKey) {
+    const K = this.K;
+    const d = {
+      id: this.uid('doc'), sample: sampleKey || null, file: src.file, path: (K.mac ? '~/Models/' : 'D:\\Models\\') + src.file,
+      model: src.model,
+      layout: { diagrams: src.layout.map((g) => { const nodes = {}; g[1].forEach((n) => { nodes['T.' + n[0]] = { x: n[1], y: n[2], collapsed: !!n[3] }; }); return { id: this.uid('dg'), name: g[0], nodes }; }) },
+      views: {}, sel: null, past: [], future: [], dirty: false, saving: false, savedAt: null, check: null, lastKey: null, compat: [], mode: null
+    };
+    d.dg = d.layout.diagrams[0].id; d.saved = this.snap(d);
+    return d;
+  }
+  doc() { const s = this.S(); return s.docs.find((d) => d.id === s.active) || null; }
+  snap(d) { return JSON.stringify({ m: d.model, l: d.layout }); }
+  after(d) {
+    d.dirty = this.snap(d) !== d.saved; if (d.check) d.check.stale = true;
+    if (!d.layout.diagrams.some((g) => g.id === d.dg)) d.dg = d.layout.diagrams[0].id;
+    const x = d.sel;
+    if (x) {
+      if (x.type === 'table' && !this.tbl(d, x.id)) d.sel = null;
+      else if (x.type === 'field' && !(this.tbl(d, x.tid) && this.tbl(d, x.tid).fields.some((f) => f.id === x.fid))) d.sel = null;
+      else if (x.type === 'rel' && !this.rel(d, x.id)) d.sel = null;
+      else if (x.type === 'multi') { x.ids = x.ids.filter((i) => this.tbl(d, i)); if (!x.ids.length) d.sel = null; }
+    }
+  }
+  commit(d, fn, key) {
+    if (!(key && d.lastKey === key)) { d.past.push(this.snap(d)); if (d.past.length > 100) d.past.shift(); }
+    d.lastKey = key || null; d.future = []; fn(); this.after(d);
+  }
+  undo(d) { if (!d.past.length) return; d.future.push(this.snap(d)); const o = JSON.parse(d.past.pop()); d.model = o.m; d.layout = o.l; d.lastKey = null; this.after(d); }
+  redo(d) { if (!d.future.length) return; d.past.push(this.snap(d)); const o = JSON.parse(d.future.pop()); d.model = o.m; d.layout = o.l; d.lastKey = null; this.after(d); }
+  tbl(d, id) { return d.model.tables.find((t) => t.id === id); }
+  rel(d, id) { return d.model.relations.find((r) => r.id === id); }
+  dgm(d) { return d.layout.diagrams.find((g) => g.id === d.dg) || d.layout.diagrams[0]; }
+  view(d) { return d.views[d.dg] || (d.views[d.dg] = { zoom: 1, px: 0, py: 0 }); }
+  mode(d) { return d.mode || this.props.fieldDisplay || 'code'; }
+  nodeW(d) { const m = this.mode(d); return m === 'both' ? 316 : m === 'name' ? 220 : 246; }
+  fkSet(d) { const s = new Set(); d.model.relations.forEach((r) => r.pairs.forEach((p) => { if (p.c) s.add(p.c); })); return s; }
+  visF(t, n, fk) { return n.collapsed ? t.fields.filter((f) => f.pk || fk.has(f.id)) : t.fields; }
+  hasFoot(t, n) { return n.collapsed || t.fields.length > 8; }
+  nodeH(t, n, fk) { return 35 + Math.max(1, this.visF(t, n, fk).length) * 22 + (this.hasFoot(t, n) ? 23 : 0); }
+  selIds(d) { const x = d.sel; if (!x) return []; return x.type === 'table' ? [x.id] : x.type === 'multi' ? x.ids : x.type === 'field' ? [x.tid] : []; }
+  toast(msg) { const s = this.S(); const tk = (s.toast = { msg }); this.later(() => { if (s.toast === tk) s.toast = null; }, 3600); }
+
+  /* ---------- canvas geometry ---------- */
+  cvSize() {
+    const s = this.S();
+    if (this.cvEl && this.cvEl.getBoundingClientRect) { const r = this.cvEl.getBoundingClientRect(); if (r.width > 60) return r; }
+    const w = (typeof window !== 'undefined' ? window.innerWidth : 1440), h = (typeof window !== 'undefined' ? window.innerHeight : 900);
+    return { left: s.leftOpen ? s.leftW + 5 : 0, top: 132, width: w - (s.leftOpen ? s.leftW + 5 : 0) - (s.rightOpen ? s.rightW + 5 : 0), height: h - 158 - (s.checkOpen ? 210 : 0) };
+  }
+  bounds(d) {
+    const g = this.dgm(d), fk = this.fkSet(d), W = this.nodeW(d); let b = null;
+    Object.keys(g.nodes).forEach((id) => { const t = this.tbl(d, id); if (!t) return; const n = g.nodes[id], h = this.nodeH(t, n, fk);
+      b = b ? { x0: Math.min(b.x0, n.x), y0: Math.min(b.y0, n.y), x1: Math.max(b.x1, n.x + W), y1: Math.max(b.y1, n.y + h) } : { x0: n.x, y0: n.y, x1: n.x + W, y1: n.y + h }; });
+    return b;
+  }
+  fit(d) {
+    const v = this.view(d), c = this.cvSize(), b = this.bounds(d);
+    if (!b) { v.zoom = 1; v.px = 0; v.py = 0; return; }
+    const bw = b.x1 - b.x0, bh = b.y1 - b.y0;
+    v.zoom = Math.max(0.3, Math.min(1, (c.width - 80) / bw, (c.height - 90) / bh));
+    v.px = Math.round((c.width - bw * v.zoom) / 2 - b.x0 * v.zoom); v.py = Math.round((c.height - bh * v.zoom) / 2 - b.y0 * v.zoom);
+  }
+  fitSoon(d) { this.later(() => this.fit(d), 30); }
+  zoomAt(d, z, cx, cy) { const v = this.view(d); z = Math.max(0.3, Math.min(2, z)); const wx = (cx - v.px) / v.zoom, wy = (cy - v.py) / v.zoom; v.zoom = z; v.px = cx - wx * z; v.py = cy - wy * z; }
+  zoomBy(d, f) { const c = this.cvSize(); this.zoomAt(d, Math.round(this.view(d).zoom * f * 20) / 20, c.width / 2, c.height / 2); }
+  centerOn(d, tid) {
+    const g = this.dgm(d), n = g.nodes[tid], t = this.tbl(d, tid); if (!n || !t) return;
+    const v = this.view(d), c = this.cvSize(), h = this.nodeH(t, n, this.fkSet(d));
+    v.px = Math.round(c.width / 2 - (n.x + this.nodeW(d) / 2) * v.zoom); v.py = Math.round(c.height / 2 - (n.y + h / 2) * v.zoom);
+  }
+  locate(d, tid, fid) {
+    const s = this.S(), t = this.tbl(d, tid); if (!t) return;
+    if (!this.dgm(d).nodes[tid]) { const g = d.layout.diagrams.find((x) => x.nodes[tid]); if (g) d.dg = g.id; else this.toast(t.code + ' 不在任何关系图中，已在模型浏览器和属性面板中选中'); }
+    d.sel = fid ? { type: 'field', tid, fid } : { type: 'table', id: tid };
+    if (fid) s.expanded[tid] = true;
+    if (this.dgm(d).nodes[tid]) { this.centerOn(d, tid); const fl = (s.flash = { id: tid }); this.later(() => { if (s.flash === fl) s.flash = null; }, 1700); }
+  }
+
+  /* ---------- model operations ---------- */
+  open(kind) {
+    const s = this.S(); let d = s.docs.find((x) => x.sample === kind);
+    if (!d) { d = this.mkDoc(this.sample(kind), kind); s.docs.push(d); }
+    s.active = d.id; s.q = ''; this.fitSoon(d); return d;
+  }
+  newTable(d) {
+    const lower = d.model.db !== 'oracle'; let k = 1; const base = lower ? 'new_table_' : 'NEW_TABLE_';
+    while (d.model.tables.some((t) => t.code === base + k)) k++;
+    const code = base + k, id = this.uid('T'); const num = d.model.db === 'oracle' ? 'NUMBER(18)' : 'BIGINT';
+    const opts = d.model.db === 'oracle' ? { auto: 'none', seq: '', tablespace: '' } : d.model.db === 'mysql' ? { auto: 'auto', engine: 'InnoDB', charset: 'utf8mb4' } : { auto: 'identity' };
+    const v = this.view(d), c = this.cvSize();
+    this.commit(d, () => {
+      d.model.tables.push({ id, code, name: '新表 ' + k, comment: '', opts, pkName: (lower ? 'pk_' : 'PK_') + code, uniques: [], indexes: [],
+        fields: [Object.assign({ id: this.uid('F'), code: lower ? 'id' : 'ID', name: '主键', nn: true, pk: true, def: '', comment: '' }, this.pt(num))] });
+      this.dgm(d).nodes[id] = { x: Math.round((c.width / 2 - v.px) / v.zoom - 120 + (k % 5) * 16), y: Math.round((c.height / 2 - v.py) / v.zoom - 60 + (k % 5) * 16), collapsed: false };
+    });
+    d.sel = { type: 'table', id }; this.openEd(d, id, 'fields');
+  }
+  removeFromDg(d, ids) { const g = this.dgm(d); ids = ids.filter((i) => g.nodes[i]); if (!ids.length) return; this.commit(d, () => ids.forEach((i) => delete g.nodes[i])); this.toast('已从关系图“' + g.name + '”移除 ' + ids.length + ' 张表，表仍保留在模型中'); }
+  addToDg(d, tid) { const t = this.tbl(d, tid), v = this.view(d), c = this.cvSize(); this.commit(d, () => { this.dgm(d).nodes[tid] = { x: Math.round((c.width / 2 - v.px) / v.zoom - 120), y: Math.round((c.height / 2 - v.py) / v.zoom - 80), collapsed: t.fields.length > 10 }; }); d.sel = { type: 'table', id: tid }; }
+  deleteTable(d, tid) {
+    const t = this.tbl(d, tid);
+    this.commit(d, () => { d.model.tables = d.model.tables.filter((x) => x.id !== tid); d.model.relations = d.model.relations.filter((r) => r.parent !== tid && r.child !== tid); d.layout.diagrams.forEach((g) => delete g.nodes[tid]); });
+    this.toast('已从模型删除 ' + t.code + '，可用撤销恢复');
+  }
+  autoLayout(d) {
+    const g = this.dgm(d), ids = Object.keys(g.nodes).filter((i) => this.tbl(d, i)); if (!ids.length) return;
+    const lv = {}; ids.forEach((i) => (lv[i] = 0));
+    for (let k = 0; k < ids.length; k++) d.model.relations.forEach((r) => { if (r.parent !== r.child && lv[r.parent] != null && lv[r.child] != null && lv[r.child] < lv[r.parent] + 1 && lv[r.parent] < ids.length - 1) lv[r.child] = lv[r.parent] + 1; });
+    const fk = this.fkSet(d), W = this.nodeW(d), ys = {};
+    this.commit(d, () => ids.forEach((i) => { const n = g.nodes[i], L = lv[i]; n.x = 40 + L * (W + 80); n.y = ys[L] == null ? 40 : ys[L]; ys[L] = n.y + this.nodeH(this.tbl(d, i), n, fk) + 34; }));
+    this.fit(d); this.toast('已自动布局，可用撤销恢复原位置');
+  }
+  save(d, then) {
+    if (d.saving) return; d.saving = true;
+    this.later(() => { d.saving = false; d.saved = this.snap(d); d.dirty = false; d.savedAt = new Date().toTimeString().slice(0, 5); this.toast('演示保存完成：' + d.file + ' 的保存状态已更新，原型未写入磁盘'); if (then) then(); }, 700);
+  }
+  closeDoc(d) { const s = this.S(); const i = s.docs.indexOf(d); s.docs.splice(i, 1); if (s.active === d.id) s.active = s.docs.length ? s.docs[Math.max(0, i - 1)].id : null; }
+  fieldIssues(db, f) {
+    const K = this.K, T = (f.type || '').toUpperCase(), out = [];
+    if (!f.code.trim()) out.push(['error', '字段代码不能为空']);
+    else if (f.code.length > K.IDLEN[db]) out.push(['error', K.DBN[db] + ' 标识符最长 ' + K.IDLEN[db] + ' 个字符，当前 ' + f.code.length]);
+    if (!K.TYPES[db].includes(T)) out.push(['warn', K.DBN[db] + ' 不支持数据类型 ' + (T || '（空）')]);
+    if (K.LEN.includes(T) && f.len === '') out.push(['error', T + ' 必须指定长度']);
+    if (db === 'oracle' && (T === 'VARCHAR2' || T === 'NVARCHAR2') && +f.len > 4000) out.push(['error', 'Oracle 11g 中 ' + T + ' 长度上限为 4000']);
+    if (db === 'oracle' && T === 'NUMBER' && f.prec !== '' && (+f.prec < 1 || +f.prec > 38)) out.push(['error', 'NUMBER 精度必须在 1–38 之间']);
+    if (K.SCALE.includes(T) && f.scale !== '' && (f.prec === '' || +f.scale > +f.prec)) out.push(['error', '小数位不能大于精度']);
+    return out;
+  }
+  runCheck(d) {
+    const db = d.model.db, issues = [];
+    d.model.tables.forEach((t) => {
+      if (!t.fields.some((f) => f.pk)) issues.push({ level: 'error', text: '表没有主键', obj: t.code, tid: t.id });
+      const seen = {};
+      t.fields.forEach((f) => {
+        const k = f.code.toUpperCase(); if (seen[k]) issues.push({ level: 'error', text: '字段代码重复：' + f.code, obj: t.code + '.' + f.code, tid: t.id, fid: f.id }); seen[k] = 1;
+        this.fieldIssues(db, f).forEach((x) => issues.push({ level: x[0], text: x[1], obj: t.code + '.' + f.code, tid: t.id, fid: f.id }));
+        if (!f.name.trim()) issues.push({ level: 'info', text: '字段缺少中文名称', obj: t.code + '.' + f.code, tid: t.id, fid: f.id });
+      });
+    });
+    d.model.relations.forEach((r) => {
+      const p = this.tbl(d, r.parent), c = this.tbl(d, r.child); if (!p || !c) return;
+      r.pairs.forEach((x) => {
+        const pf = p.fields.find((f) => f.id === x.p), cf = c.fields.find((f) => f.id === x.c);
+        if (!pf || !cf) issues.push({ level: 'error', text: '外键映射缺失：' + (pf ? pf.code : '（父表字段）') + ' 没有对应的子表字段', obj: r.code, rid: r.id });
+        else if (this.ft(pf) !== this.ft(cf)) issues.push({ level: 'warn', text: '外键字段类型不一致：' + c.code + '.' + cf.code + ' ' + this.ft(cf) + ' ≠ ' + p.code + '.' + pf.code + ' ' + this.ft(pf), obj: r.code, rid: r.id });
+      });
+    });
+    const o = { error: 0, warn: 1, info: 2 }; issues.sort((a, b) => o[a.level] - o[b.level]);
+    d.check = { issues, stale: false };
+  }
+
+  /* ---------- table editor (works on a draft copy) ---------- */
+  openEd(d, tid, tab, newRelParent) {
+    const s = this.S(), t = this.tbl(d, tid); if (!t) return;
+    const draft = this.clone(t);
+    const rels = d.model.relations.filter((r) => r.child === tid).map((r) => { const p = this.tbl(d, r.parent); return { id: r.id, code: r.code, name: r.name, parent: r.parent, onDelete: r.onDelete, isNew: false, pairs: r.pairs.map((x) => ({ p: x.p, c: (draft.fields.find((f) => f.id === x.c) || {}).code || '' })) }; });
+    s.ed = { tid, tab: tab || 'fields', t: draft, rels, row: null };
+    if (newRelParent) this.edAddFk(d, newRelParent);
+  }
+  edAddFk(d, parentId) {
+    const ed = this.S().ed, p = this.tbl(d, parentId); if (!p) return;
+    const lower = d.model.db !== 'oracle'; let code = (lower ? 'fk_' : 'FK_') + ed.t.code + '_' + p.code; code = code.slice(0, this.K.IDLEN[d.model.db]);
+    ed.rels.push({ id: this.uid('R'), code, name: p.name + '的' + ed.t.name, parent: parentId, onDelete: 'NO ACTION', isNew: true, pairs: this.pkPairs(p, ed.t) });
+  }
+  pkPairs(p, draft) { return p.fields.filter((f) => f.pk).map((f) => ({ p: f.id, c: (draft.fields.find((x) => x.code === f.code) || {}).code || '' })); }
+  edState(d) {
+    const ed = this.S().ed, db = d.model.db; const errs = {}, warns = {}; let block = 0, fErr = 0, fkErr = 0;
+    const seen = {}; ed.t.fields.forEach((f) => { const k = f.code.trim().toUpperCase(); (seen[k] = seen[k] || []).push(f.id); });
+    ed.t.fields.forEach((f) => {
+      const e = [], w = [];
+      if (f.code.trim() && seen[f.code.trim().toUpperCase()].length > 1) { e.push('字段代码重复：' + f.code); block++; }
+      this.fieldIssues(db, f).forEach((x) => { (x[0] === 'error' ? e : w).push(x[1]); if (x[1] === '字段代码不能为空') block++; });
+      if (e.length) { errs[f.id] = e; fErr++; } if (w.length) warns[f.id] = w;
+    });
+    const relErr = {}; ed.rels.forEach((r) => { const miss = r.pairs.filter((p) => !ed.t.fields.some((f) => f.code === p.c.trim())); if (!r.pairs.length) { relErr[r.id] = '父表没有主键，无法建立映射'; fkErr++; } else if (miss.length) { relErr[r.id] = '外键映射缺失：' + miss.length + ' 组字段未映射到本表已有字段'; fkErr++; } });
+    const codeDup = !ed.t.code.trim() ? '表代码不能为空' : d.model.tables.some((t) => t.id !== ed.tid && t.code.toUpperCase() === ed.t.code.trim().toUpperCase()) ? '模型中已存在代码为 ' + ed.t.code + ' 的表' : ed.t.code.length > this.K.IDLEN[db] ? this.K.DBN[db] + ' 标识符最长 ' + this.K.IDLEN[db] + ' 个字符' : '';
+    if (codeDup) block++;
+    return { errs, warns, block, fErr, fkErr, relErr, codeDup };
+  }
+  applyEd(d) {
+    const s = this.S(), ed = s.ed; if (this.edState(d).block) return;
+    this.commit(d, () => {
+      const nt = this.clone(ed.t); nt.code = nt.code.trim(); nt.fields.forEach((f) => { f.code = f.code.trim(); f.type = f.type.toUpperCase(); if (f.pk) f.nn = true; });
+      const has = (id) => nt.fields.some((f) => f.id === id);
+      nt.uniques.forEach((u) => (u.cols = u.cols.filter(has))); nt.indexes.forEach((u) => (u.cols = u.cols.filter(has)));
+      d.model.tables[d.model.tables.findIndex((t) => t.id === ed.tid)] = nt;
+      d.model.relations = d.model.relations.filter((r) => r.child !== ed.tid).concat(ed.rels.map((r) => ({ id: r.id, code: r.code, name: r.name, parent: r.parent, child: ed.tid, onDelete: r.onDelete, pairs: r.pairs.map((p) => ({ p: p.p, c: (nt.fields.find((f) => f.code === p.c.trim()) || {}).id || null })) })));
+      d.model.relations.forEach((r) => { if (r.parent === ed.tid) r.pairs.forEach((p) => { if (!has(p.p)) p.p = null; }); });
+    });
+    this.toast('已应用 ' + ed.t.code + ' 的表结构更改'); s.ed = null;
+  }
+  ddl(d, t, rels) {
+    const db = d.model.db, m = d.model, o = t.opts || {};
+    const q = db === 'mysql' ? (x) => '`' + x + '`' : (x) => x;
+    const full = (code) => (db === 'mysql' ? q(code) : m.owner + '.' + code);
+    const pk = t.fields.filter((f) => f.pk), L = [];
+    const code = (id) => (t.fields.find((f) => f.id === id) || {}).code;
+    const cols = t.fields.map((f) => {
+      const single = pk.length === 1 && f.pk; let ty = this.ft(f);
+      if (db === 'pg' && single && o.auto === 'serial') ty = 'BIGSERIAL';
+      let s = '  ' + q(f.code).padEnd(20) + ' ' + ty;
+      if (f.def !== '') s += ' DEFAULT ' + f.def;
+      if (db === 'pg' && single && o.auto === 'identity') s += ' GENERATED BY DEFAULT AS IDENTITY';
+      if (f.nn || f.pk) s += ' NOT NULL';
+      if (db === 'mysql' && single && o.auto === 'auto') s += ' AUTO_INCREMENT';
+      if (db === 'mysql' && f.name) s += " COMMENT '" + f.name + "'";
+      return s;
+    });
+    if (pk.length) cols.push('  CONSTRAINT ' + q(t.pkName) + ' PRIMARY KEY (' + pk.map((f) => q(f.code)).join(', ') + ')');
+    t.uniques.forEach((u) => { const c = u.cols.map(code).filter(Boolean); if (c.length) cols.push('  CONSTRAINT ' + q(u.code) + ' UNIQUE (' + c.map(q).join(', ') + ')'); });
+    let tail = ')';
+    if (db === 'mysql') tail += ' ENGINE=' + (o.engine || 'InnoDB') + ' DEFAULT CHARSET=' + (o.charset || 'utf8mb4') + (t.name ? " COMMENT='" + t.name + "'" : '');
+    if (db === 'oracle' && o.tablespace) tail += ' TABLESPACE ' + o.tablespace;
+    L.push('CREATE TABLE ' + full(t.code) + ' (', cols.join(',\n'), tail + ';');
+    if (db !== 'mysql') {
+      L.push(''); if (t.name) L.push('COMMENT ON TABLE ' + full(t.code) + " IS '" + t.name + "';");
+      t.fields.forEach((f) => { if (f.name) L.push('COMMENT ON COLUMN ' + full(t.code) + '.' + f.code + " IS '" + f.name + "';"); });
+    }
+    if (t.indexes.length) L.push('');
+    t.indexes.forEach((u) => { const c = u.cols.map(code).filter(Boolean); if (c.length) L.push('CREATE ' + (u.unique ? 'UNIQUE ' : '') + 'INDEX ' + q(u.code) + ' ON ' + full(t.code) + ' (' + c.map(q).join(', ') + ');'); });
+    if (rels.length) L.push('');
+    rels.forEach((r) => {
+      if (r.bad) { L.push('-- ' + r.code + '：字段映射缺失，未生成外键语句'); return; }
+      L.push('ALTER TABLE ' + full(t.code) + ' ADD CONSTRAINT ' + q(r.code), '  FOREIGN KEY (' + r.c.map(q).join(', ') + ') REFERENCES ' + full(r.parent) + ' (' + r.p.map(q).join(', ') + ')' + (r.onDelete !== 'NO ACTION' ? ' ON DELETE ' + r.onDelete : '') + ';');
+    });
+    if (db === 'oracle' && o.auto === 'seq' && pk.length === 1 && o.seq) {
+      const trg = ('TRG_' + t.code + '_BI').slice(0, 30);
+      L.push('', '-- Oracle 11g 没有 IDENTITY 列（12c 起提供），使用序列 + 触发器生成主键', 'CREATE SEQUENCE ' + m.owner + '.' + o.seq + ' START WITH 1 INCREMENT BY 1 CACHE 20;', '',
+        'CREATE OR REPLACE TRIGGER ' + m.owner + '.' + trg, 'BEFORE INSERT ON ' + full(t.code) + ' FOR EACH ROW', 'WHEN (NEW.' + pk[0].code + ' IS NULL)', 'BEGIN',
+        '  SELECT ' + m.owner + '.' + o.seq + '.NEXTVAL INTO :NEW.' + pk[0].code + ' FROM DUAL;', 'END;', '/');
+    }
+    return L.join('\n');
+  }
+
+  /* ---------- import demo flow ---------- */
+  startImport(key) {
+    const s = this.S(), dl = (s.dlg = { type: 'import', step: 'load', file: key, stage: 0 });
+    const tick = () => this.later(() => {
+      if (s.dlg !== dl) return;
+      if (key === 'bad' && dl.stage === 1) { dl.step = 'fail'; return; }
+      dl.stage++;
+      if (dl.stage < 4) { tick(); return; }
+      if (key === 'mysql') { dl.step = 'compat'; return; }
+      s.dlg = null; this.open(key); this.toast('已导入演示文件 customer_service.pdm（Oracle 11g，6 张表，7 条关系）');
+    }, 520);
+    tick();
+  }
+  compatList() {
+    return [
+      { t: '扩展属性（Extended Attributes）', n: '9 项', d: '保留原值，保存时原样写回；暂不可查看和编辑。' },
+      { t: '分区定义 PARTITION BY RANGE', n: 'sales_order', d: '保留原值；SQL 预览中不显示分区子句。' },
+      { t: '触发器', n: '2 个', d: '保留原值；暂不支持查看与编辑。' }
+    ];
+  }
+
+  /* ---------- render ---------- */
+  renderVals() {
+    const s = this.S(), K = this.K, d = this.doc();
+    const h = (fn) => (e) => { fn(e); this.up(); };
+    const theme = s.theme || this.props.theme || 'light';
+    const mod = K.mac ? '⌘' : 'Ctrl+';
+    const kUndo = mod + 'Z', kRedo = K.mac ? '⇧⌘Z' : 'Ctrl+Y', kSave = mod + 'S';
+    const act = {
+      import: () => { s.dlg = { type: 'import', step: 'pick' }; },
+      save: () => { if (d) { if (!d.dirty) this.toast('没有需要保存的更改'); else this.save(d); } },
+      newTable: () => d && this.newTable(d),
+      newRel: () => { if (d) { const ps = d.model.tables.filter((t) => t.fields.some((f) => f.pk)); const st = this.selIds(d)[0]; s.dlg = { type: 'newRel', parent: ps[0] ? ps[0].id : null, child: st || (d.model.tables[1] || d.model.tables[0]).id }; } },
+      undo: () => d && this.undo(d), redo: () => d && this.redo(d),
+      layout: () => d && this.autoLayout(d),
+      check: () => { if (d) { this.runCheck(d); s.checkOpen = true; } },
+      fit: () => d && this.fit(d),
+      newModel: () => { s.dlg = { type: 'newModel', name: '未命名模型', db: 'oracle' }; },
+      close: () => d && reqClose(d),
+      theme: () => { s.theme = theme === 'dark' ? 'light' : 'dark'; },
+      delSel: () => { if (d) { const ids = this.selIds(d); if (d.sel && d.sel.type === 'rel') { const r = this.rel(d, d.sel.id); this.commit(d, () => { d.model.relations = d.model.relations.filter((x) => x.id !== r.id); }); this.toast('已删除关系 ' + r.code); } else if (ids.length === 1) s.dlg = { type: 'del', tid: ids[0] }; else if (ids.length > 1) this.toast('一次只能从模型删除一张表；多选时可使用“从当前关系图移除”'); } },
+      rmSel: () => d && this.removeFromDg(d, this.selIds(d))
+    };
+    const reqClose = (x) => { if (x.dirty) s.dlg = { type: 'close', id: x.id }; else this.closeDoc(x); };
+    const mi = (label, run, hint, disabled, danger) => ({ item: true, sep: false, label, hint: hint || '', disabled: !!disabled, cls: 'mi' + (danger ? ' danger' : ''), click: h(() => { s.menu = null; s.ctx = null; run(); }) });
+    const sep = { sep: true, item: false };
+    const hasSel = !!(d && d.sel), noDoc = !d;
+    const setMode = (m) => () => { if (d) d.mode = m; };
+    const menuDefs = [
+      ['file', '文件', [mi('新建模型…', act.newModel), mi('导入 PDM…', act.import), sep, mi('保存', act.save, kSave, noDoc), mi('另存为…', () => this.toast('“另存为”尚未实现：接入 Electron 文件对话框后提供'), '', noDoc), sep, mi('关闭文件', act.close, '', noDoc)]],
+      ['edit', '编辑', [mi('撤销', act.undo, kUndo, !d || !d.past.length), mi('重做', act.redo, kRedo, !d || !d.future.length), sep, mi('从当前关系图移除', act.rmSel, '', !d || !this.selIds(d).length), mi('从模型删除…', act.delSel, '', !hasSel || d.sel.type === 'field', true)]],
+      ['model', '模型', [mi('新建表', act.newTable, '', noDoc), mi('新建关系…', act.newRel, '', !d || d.model.tables.length < 1), sep, mi('模型检查', act.check, '', noDoc), mi('模型属性', () => { d.sel = null; s.rightOpen = true; }, '', noDoc)]],
+      ['view', '视图', [mi('字段显示：英文代码', setMode('code'), '', noDoc), mi('字段显示：中文名称', setMode('name'), '', noDoc), mi('字段显示：两者', setMode('both'), '', noDoc), sep, mi(s.leftOpen ? '隐藏模型浏览器' : '显示模型浏览器', () => { s.leftOpen = !s.leftOpen; }), mi(s.rightOpen ? '隐藏属性面板' : '显示属性面板', () => { s.rightOpen = !s.rightOpen; }), mi(s.checkOpen ? '隐藏模型检查面板' : '显示模型检查面板', () => { s.checkOpen = !s.checkOpen; }, '', noDoc), sep, mi('适应画布', act.fit, '', noDoc), mi('自动布局', act.layout, '', noDoc), mi(theme === 'dark' ? '切换到浅色主题' : '切换到深色主题', act.theme)]],
+      ['help', '帮助', [mi('关于本原型与快捷键', () => { s.dlg = { type: 'about' }; })]]
+    ];
+    const v = {
+      themeClass: 'app th-' + theme, themeLabel: theme === 'dark' ? '深色' : '浅色', toggleTheme: h(act.theme),
+      menus: menuDefs.map((m) => ({ label: m[1], open: s.menu === m[0], cls: 'mbtn' + (s.menu === m[0] ? ' on' : ''), items: m[2], toggle: h(() => { s.menu = s.menu === m[0] ? null : m[0]; s.ctx = null; }) })),
+      noDoc, noRel: !d || !d.model.tables.length, noUndo: !d || !d.past.length, noRedo: !d || !d.future.length,
+      undoTip: '撤销（' + kUndo + '）', redoTip: '重做（' + kRedo + '）', saveTip: '保存（' + kSave + '）· 演示：不写入磁盘',
+      actImport: h(act.import), actSave: h(act.save), actNewTable: h(act.newTable), actNewRel: h(act.newRel), actUndo: h(act.undo), actRedo: h(act.redo), actLayout: h(act.layout), actCheck: h(act.check), actFit: h(act.fit), actNewModel: h(act.newModel),
+      modes: [['code', '英文代码'], ['name', '中文名称'], ['both', '两者']].map((m) => ({ label: m[1], cls: d && this.mode(d) === m[0] ? 'on' : '', pick: h(setMode(m[0])) })),
+      tabs: s.docs.map((x) => ({ file: x.file, path: x.path, db: K.DBN[x.model.db], dirty: x.dirty, cls: 'ftab' + (x.id === s.active ? ' on' : ''), pick: h(() => { s.active = x.id; }), close: h(() => reqClose(x)) })),
+      homeCls: 'ftab' + (!d ? ' on' : ''), goHome: h(() => { s.active = null; }),
+      showWelcome: !d, showWork: !!d,
+      samples: [['oracle', '客户服务模型', '客户、坐席、通话记录、外呼任务与录音 · 6 张表 · 含复合外键'], ['mysql', '订单中心模型', 'AUTO_INCREMENT、存储引擎与字符集 · 4 张表'], ['pg', '工单协作模型', 'IDENTITY 列、JSONB、TIMESTAMPTZ · 4 张表']].map((x) => ({ db: K.DBN[x[0]], title: x[1], desc: x[2], open: h(() => this.open(x[0])) })),
+      hasRecent: s.recentOn, noRecent: !s.recentOn, clearRecent: h(() => { s.recentOn = false; }), restoreRecent: h(() => { s.recentOn = true; }),
+      recents: [['oracle', 'customer_service.pdm'], ['mysql', 'order_center.pdm'], ['pg', 'issue_tracker.pdm'], ['bad', 'legacy_billing.pdm']].map((x) => ({ file: x[1], path: (K.mac ? '~/Models/' : 'D:\\Models\\') + x[1], db: x[0] === 'bad' ? '演示：导入失败' : K.DBN[x[0]], open: h(() => { if (x[0] === 'bad' || x[0] === 'mysql') this.startImport(x[0]); else this.open(x[0]); }) })),
+      leftOpen: s.leftOpen, leftClosed: !s.leftOpen, rightOpen: s.rightOpen, rightClosed: !s.rightOpen, leftW: s.leftW, rightW: s.rightW,
+      toggleLeft: h(() => { s.leftOpen = !s.leftOpen; }), toggleRight: h(() => { s.rightOpen = !s.rightOpen; }),
+      q: s.q, setQ: h((e) => { s.q = e.target.value; }),
+      hasPop: !!(s.menu || s.ctx), closePop: h(() => { s.menu = null; s.ctx = null; }), closePopCtx: h((e) => { e.preventDefault(); s.menu = null; s.ctx = null; }),
+      hasCtx: !!s.ctx, ctxX: s.ctx ? s.ctx.x : 0, ctxY: s.ctx ? s.ctx.y : 0, ctxItems: s.ctx ? s.ctx.items : [],
+      hasToast: !!s.toast, toast: s.toast ? s.toast.msg : '',
+      closeDlg: h(() => { s.dlg = null; }), stop: (e) => e.stopPropagation(),
+      kUndo, kRedo, kSave, kZoom: K.mac ? '⌘' : 'Ctrl',
+      checkOpen: !!d && s.checkOpen, toggleCheck: h(() => { s.checkOpen = !s.checkOpen; }),
+      onKey: (e) => {
+        const m = e.metaKey || e.ctrlKey, k = (e.key || '').toLowerCase(), inField = /INPUT|TEXTAREA/.test(e.target.tagName);
+        if (k === 'escape') { s.menu = null; s.ctx = null; this.up(); return; }
+        if (!m || !d || s.ed || s.dlg) return;
+        if (k === 's') { e.preventDefault(); act.save(); this.up(); }
+        else if (k === 'z' && !inField) { e.preventDefault(); if (e.shiftKey) act.redo(); else act.undo(); this.up(); }
+        else if (k === 'y' && !inField) { e.preventDefault(); act.redo(); this.up(); }
+      }
+    };
+    const dl = s.dlg || {};
+    Object.assign(v, { dImport: dl.type === 'import', dDel: dl.type === 'del', dClose: dl.type === 'close', dRename: dl.type === 'rename', dNewModel: dl.type === 'newModel', dNewRel: dl.type === 'newRel', dAbout: dl.type === 'about', hasEd: false, ed: {}, del: {}, cl: {}, rn: {}, nm: {}, nr: {}, pm: {}, pt: {}, pf: {}, pr: {}, mq: {}, mv: {} });
+
+    /* import dialog */
+    if (v.dImport) {
+      const files = { oracle: 'customer_service.pdm', mysql: 'order_center.pdm', bad: 'legacy_billing.pdm' };
+      const labels = ['读取文件', '解析 PDM XML', '映射表、字段与关系', '生成关系图'];
+      Object.assign(v, {
+        imPick: dl.step === 'pick', imLoad: dl.step === 'load', imFail: dl.step === 'fail', imCompat: dl.step === 'compat', imFile: files[dl.file] || '',
+        imFiles: [['oracle', 'Oracle 11g · 6 张表 · 7 条关系', '正常导入'], ['mysql', 'MySQL · 4 张表 · 含暂不支持的属性', '兼容性提示'], ['bad', '文件被截断，XML 结构不完整', '导入失败']].map((f) => ({ file: files[f[0]], desc: f[1], tag: f[2], pick: h(() => this.startImport(f[0])) })),
+        imReal: h(() => this.toast('读取本机文件尚未实现：接入 Electron 文件对话框与 PDM 解析模块后提供')),
+        imSteps: labels.map((l, i) => ({ label: l, cls: 'step' + (i < dl.stage ? ' done' : i === dl.stage ? (dl.step === 'fail' ? ' fail' : ' act') : '') })),
+        imBack: h(() => { s.dlg = { type: 'import', step: 'pick' }; }), imRetry: h(() => this.startImport(dl.file)),
+        compat: dl.view ? dl.view : this.compatList(), compatN: 3, compatOpenable: !dl.view, compatCancel: dl.view ? '关闭' : '取消导入',
+        imOpen: h(() => { s.dlg = null; const nd = this.open('mysql'); nd.compat = this.compatList(); this.toast('已导入演示文件 order_center.pdm，3 类属性以只读方式保留'); })
+      });
+    }
+    if (v.dNewModel) {
+      v.nm = { name: dl.name, db: dl.db, setDb: h((e) => { dl.db = e.target.value; }), setName: h((e) => { dl.name = e.target.value; }), dbs: ['oracle', 'mysql', 'pg'].map((k) => ({ label: K.DBN[k], cls: 'chip' + (dl.db === k ? ' on' : ''), pick: h(() => { dl.db = k; }) })),
+        ok: h(() => {
+          const nm = dl.name.trim() || '未命名模型'; let n = 1; while (s.docs.some((x) => x.file === '未命名-' + n + '.pdm')) n++;
+          const nd = this.mkDoc({ file: '未命名-' + n + '.pdm', model: { name: nm, code: dl.db === 'oracle' ? 'UNTITLED' : 'untitled', db: dl.db, owner: dl.db === 'oracle' ? 'APP' : dl.db === 'pg' ? 'public' : 'app_db', comment: '', tables: [], relations: [], views: [], sequences: [] }, layout: [['关系图 1', []]] });
+          nd.path = '尚未保存到磁盘'; s.docs.push(nd); s.active = nd.id; s.dlg = null;
+        }) };
+    }
+    if (!d) return v;
+
+    /* ---------- workspace ---------- */
+    const g = this.dgm(d), view = this.view(d), fk = this.fkSet(d), W = this.nodeW(d), mode = this.mode(d), db = d.model.db;
+    const sel = d.sel, selT = this.selIds(d), selRel = sel && sel.type === 'rel' ? this.rel(d, sel.id) : null;
+    const inDg = (id) => !!g.nodes[id];
+    const tableCtx = (tid) => (e) => {
+      e.preventDefault(); e.stopPropagation(); if (!selT.includes(tid)) d.sel = { type: 'table', id: tid };
+      const t = this.tbl(d, tid);
+      s.menu = null; s.ctx = { x: Math.min(e.clientX, window.innerWidth - 240), y: Math.min(e.clientY, window.innerHeight - 250), items: [
+        mi('编辑表结构…', () => this.openEd(d, tid, 'fields')), mi('重命名…', () => { s.dlg = { type: 'rename', tid, name: t.name, code: t.code }; }), sep,
+        mi('新建表', act.newTable), mi('以此表为子表新建关系…', () => { d.sel = { type: 'table', id: tid }; act.newRel(); }), sep,
+        inDg(tid) ? mi('从当前关系图移除', () => this.removeFromDg(d, selT.includes(tid) && selT.length > 1 ? selT : [tid])) : mi('添加到当前关系图', () => this.addToDg(d, tid)),
+        mi('从模型删除…', () => { s.dlg = { type: 'del', tid }; }, '', false, true)] };
+      this.up();
+    };
+
+    /* tree */
+    const q = s.q.trim().toLowerCase();
+    const tree = d.model.tables.map((t) => {
+      const selfHit = !!q && (t.code.toLowerCase().includes(q) || t.name.toLowerCase().includes(q));
+      const fHits = q ? t.fields.filter((f) => (f.code + ' ' + f.name).toLowerCase().includes(q)).map((f) => f.id) : [];
+      if (q && !selfHit && !fHits.length) return null;
+      const open = !!s.expanded[t.id] || (q && fHits.length > 0 && !selfHit);
+      return {
+        id: t.id, code: t.code, name: t.name, tip: inDg(t.id) ? '单击定位到画布，双击编辑表结构' : '不在当前关系图中：右键可添加',
+        cls: 'trow' + (selT.includes(t.id) ? ' sel' : '') + (inDg(t.id) ? '' : ' off'), codeCls: 'mono' + (selfHit ? ' hit' : ''), chev: 'chev' + (open ? ' open' : ''),
+        toggle: h(() => { s.expanded[t.id] = !open; }), click: h(() => this.locate(d, t.id)), dbl: h(() => this.openEd(d, t.id, 'fields')), ctx: tableCtx(t.id),
+        fields: open ? t.fields.map((f) => ({ code: f.code, name: f.name, type: this.ft(f), pk: f.pk, fk: fk.has(f.id), cls: 'frow' + (sel && sel.type === 'field' && sel.fid === f.id ? ' sel' : '') + (fHits.includes(f.id) ? ' hit' : ''), click: h(() => this.locate(d, t.id, f.id)) })) : []
+      };
+    }).filter(Boolean);
+    Object.assign(v, {
+      ownerLabel: (db === 'mysql' ? 'database ' : db === 'pg' ? 'schema ' : 'owner ') + d.model.owner, tree, tableCount: d.model.tables.length,
+      noHits: !!q && !tree.length, noTables: !q && !d.model.tables.length,
+      qKey: (e) => { if (e.key === 'Enter' && tree.length) { this.locate(d, tree[0].id); this.up(); } },
+      openTables: s.grp.tables, openViews: s.grp.views, openSeqs: s.grp.seqs,
+      chevTables: 'chev' + (s.grp.tables ? ' open' : ''), chevViews: 'chev' + (s.grp.views ? ' open' : ''), chevSeqs: 'chev' + (s.grp.seqs ? ' open' : ''),
+      togTables: h(() => { s.grp.tables = !s.grp.tables; }), togViews: h(() => { s.grp.views = !s.grp.views; }), togSeqs: h(() => { s.grp.seqs = !s.grp.seqs; }),
+      views: d.model.views, viewCount: d.model.views.length, seqs: d.model.sequences, seqCount: d.model.sequences.length,
+      dgs: d.layout.diagrams.map((x) => ({ name: x.name, cls: 'dtab' + (x.id === g.id ? ' on' : ''), pick: h(() => { d.dg = x.id; if (!d.views[x.id]) this.fitSoon(d); }) })),
+      addDg: h(() => { const id = this.uid('dg'); this.commit(d, () => d.layout.diagrams.push({ id, name: '关系图 ' + (d.layout.diagrams.length + 1), nodes: {} })); d.dg = id; })
+    });
+
+    /* canvas nodes */
+    const hiF = new Set(); if (selRel) selRel.pairs.forEach((p) => { hiF.add(p.p); hiF.add(p.c); }); if (sel && sel.type === 'field') hiF.add(sel.fid);
+    const relT = new Set(); if (selRel) { relT.add(selRel.parent); relT.add(selRel.child); }
+    d.model.relations.forEach((r) => { if (selT.includes(r.parent)) relT.add(r.child); if (selT.includes(r.child)) relT.add(r.parent); });
+    const geo = {};
+    const nodes = Object.keys(g.nodes).map((id) => {
+      const t = this.tbl(d, id); if (!t) return null; const n = g.nodes[id], vis = this.visF(t, n, fk), hid = t.fields.length - vis.length;
+      const idx = {}; vis.forEach((f, i) => (idx[f.id] = i)); geo[id] = { n, idx, h: this.nodeH(t, n, fk) };
+      return {
+        x: n.x, y: n.y, w: W, cls: 'node' + (selT.includes(id) ? ' sel' : relT.has(id) ? ' rel' : '') + (s.flash && s.flash.id === id ? ' flash' : ''),
+        a: mode === 'name' ? (t.name || t.code) : t.code, aCls: mode === 'name' ? 'a' : 'a mono', b: mode === 'name' ? t.code : t.name,
+        rows: vis.map((f) => ({ pk: f.pk, fk: fk.has(f.id), type: this.ft(f), tip: f.code + ' · ' + (f.name || '未命名') + ' · ' + this.ft(f) + (f.nn ? ' · NOT NULL' : ''),
+          label: mode === 'name' ? (f.name || f.code) : f.code, sub: mode === 'both' ? f.name : '', lblCls: 'fc' + (mode === 'name' ? '' : ' mono'),
+          cls: 'nr' + (f.pk ? ' pk' : '') + (hiF.has(f.id) ? ' hi' : ''), click: h(() => { d.sel = { type: 'field', tid: id, fid: f.id }; }) })),
+        foot: this.hasFoot(t, n), footText: n.collapsed ? '展开全部 ' + t.fields.length + ' 个字段（已折叠 ' + hid + ' 个普通字段）' : '折叠普通字段，仅显示主键和外键',
+        togFold: h((e) => { e.stopPropagation(); this.commit(d, () => { n.collapsed = !n.collapsed; }); }),
+        dbl: h(() => this.openEd(d, id, 'fields')), ctx: tableCtx(id),
+        down: (e) => {
+          if (e.button !== 0) return; e.stopPropagation();
+          let ids = selT.includes(id) && sel.type !== 'field' ? selT : [id]; if (!(selT.includes(id) && (sel.type === 'multi' || sel.type === 'table'))) d.sel = { type: 'table', id };
+          const z = view.zoom, start = ids.map((i) => ({ i, x: g.nodes[i].x, y: g.nodes[i].y })), before = this.snap(d), sx = e.clientX, sy = e.clientY; let moved = false;
+          const mv = (ev) => { const dx = (ev.clientX - sx) / z, dy = (ev.clientY - sy) / z; if (!moved && Math.abs(dx) + Math.abs(dy) < 3) return; moved = true; start.forEach((p) => { const nn = g.nodes[p.i]; if (nn) { nn.x = Math.round(p.x + dx); nn.y = Math.round(p.y + dy); } }); this.up(); };
+          const upf = () => { window.removeEventListener('mousemove', mv); window.removeEventListener('mouseup', upf); if (moved) { d.past.push(before); d.future = []; d.lastKey = null; this.after(d); } this.up(); };
+          window.addEventListener('mousemove', mv); window.addEventListener('mouseup', upf); this.up();
+        }
+      };
+    }).filter(Boolean);
+
+    /* edges: one line per relation, anchored at the first mapped field pair */
+    const edges = d.model.relations.map((r) => {
+      const P = geo[r.parent], C = geo[r.child]; if (!P || !C) return null;
+      const ok = r.pairs.find((p) => p.p && p.c), bad = r.pairs.some((p) => !p.p || !p.c) || !r.pairs.length;
+      const ay = (G, fid) => G.n.y + (fid != null && G.idx[fid] != null ? 35 + G.idx[fid] * 22 + 11 : 17);
+      const y1 = ay(P, ok ? ok.p : null); let y2 = ay(C, ok ? ok.c : null);
+      const pc = P.n.x + W / 2, cc = C.n.x + W / 2; let o1, o2;
+      if (Math.abs(pc - cc) < W * 0.6) { o1 = 1; o2 = 1; } else if (pc < cc) { o1 = 1; o2 = -1; } else { o1 = -1; o2 = 1; }
+      const x1 = o1 > 0 ? P.n.x + W : P.n.x, x2 = o2 > 0 ? C.n.x + W : C.n.x;
+      if (r.parent === r.child && y1 === y2) y2 += 11;
+      const dx = o1 === o2 ? 56 : Math.max(36, Math.abs(x2 - x1) / 2), c1 = x1 + o1 * dx, c2 = x2 + o2 * dx;
+      const path = 'M' + x1 + ' ' + y1 + ' C' + c1 + ' ' + y1 + ' ' + c2 + ' ' + y2 + ' ' + x2 + ' ' + y2 +
+        ' M' + (x1 + o1 * 8) + ' ' + (y1 - 6) + ' L' + (x1 + o1 * 8) + ' ' + (y1 + 6) +
+        ' M' + (x2 + o2 * 13) + ' ' + y2 + ' L' + x2 + ' ' + (y2 - 6) + ' M' + (x2 + o2 * 13) + ' ' + y2 + ' L' + x2 + ' ' + (y2 + 6);
+      const isSel = selRel && selRel.id === r.id, adj = selT.includes(r.parent) || selT.includes(r.child);
+      return { d: path, cls: 'edge' + (isSel ? ' sel' : adj ? ' adj' : '') + (bad ? ' bad' : ''), aria: '关系 ' + r.code, multi: r.pairs.length > 1, n: r.pairs.length,
+        lx: Math.round((x1 + 3 * c1 + 3 * c2 + x2) / 8), ly: Math.round((y1 + y2) / 2), lblCls: 'elbl' + (isSel ? ' sel' : ''),
+        down: (e) => { e.stopPropagation(); d.sel = { type: 'rel', id: r.id }; s.rightOpen = true; this.up(); } };
+    }).filter(Boolean);
+
+    /* canvas interactions */
+    const pan = (e) => { const sx = e.clientX, sy = e.clientY, px = view.px, py = view.py; const mv = (ev) => { view.px = px + ev.clientX - sx; view.py = py + ev.clientY - sy; this.up(); }; const upf = () => { window.removeEventListener('mousemove', mv); window.removeEventListener('mouseup', upf); }; window.addEventListener('mousemove', mv); window.addEventListener('mouseup', upf); };
+    Object.assign(v, {
+      nodes, edges, vx: Math.round(view.px), vy: Math.round(view.py), vz: view.zoom, gs: Math.max(8, Math.round(20 * view.zoom)), zoomPct: Math.round(view.zoom * 100),
+      cvCls: 'cv' + (s.tool === 'hand' ? ' hand' : ''), cvRef: (el) => { if (el) this.cvEl = el; },
+      selToolCls: s.tool === 'select' ? 'on' : '', handToolCls: s.tool === 'hand' ? 'on' : '', toolSel: h(() => { s.tool = 'select'; }), toolHand: h(() => { s.tool = 'hand'; }),
+      zoomIn: h(() => this.zoomBy(d, 1.2)), zoomOut: h(() => this.zoomBy(d, 1 / 1.2)), zoom100: h(() => { const c = this.cvSize(); this.zoomAt(d, 1, c.width / 2, c.height / 2); }),
+      emptyModel: !d.model.tables.length, emptyDiagram: !!d.model.tables.length && !nodes.length,
+      addAll: h(() => { this.commit(d, () => d.model.tables.forEach((t, i) => { g.nodes[t.id] = { x: 40 + (i % 3) * (W + 70), y: 40 + Math.floor(i / 3) * 290, collapsed: t.fields.length > 8 }; })); this.fit(d); }),
+      hasMarq: !!s.marquee, mq: s.marquee || {},
+      bgCtx: (e) => { e.preventDefault(); s.menu = null; s.ctx = { x: Math.min(e.clientX, window.innerWidth - 220), y: Math.min(e.clientY, window.innerHeight - 160), items: [mi('新建表', act.newTable), mi('新建关系…', act.newRel, '', !d.model.tables.length), sep, mi('自动布局', act.layout), mi('适应画布', act.fit), mi('模型检查', act.check)] }; this.up(); },
+      onWheel: (e) => { const r = e.currentTarget.getBoundingClientRect(); this.cvEl = e.currentTarget; if (e.ctrlKey || e.metaKey) this.zoomAt(d, view.zoom * (e.deltaY < 0 ? 1.1 : 1 / 1.1), e.clientX - r.left, e.clientY - r.top); else { view.px -= e.deltaX; view.py -= e.deltaY; } this.up(); },
+      bgDown: (e) => {
+        this.cvEl = e.currentTarget;
+        if (e.button === 1 || (e.button === 0 && s.tool === 'hand')) { e.preventDefault(); pan(e); return; }
+        if (e.button !== 0) return;
+        const r = e.currentTarget.getBoundingClientRect(), sx = e.clientX - r.left, sy = e.clientY - r.top; let moved = false;
+        const mv = (ev) => { const x = ev.clientX - r.left, y = ev.clientY - r.top; if (!moved && Math.abs(x - sx) + Math.abs(y - sy) < 4) return; moved = true; s.marquee = { x: Math.min(sx, x), y: Math.min(sy, y), w: Math.abs(x - sx), h: Math.abs(y - sy) }; this.up(); };
+        const upf = () => {
+          window.removeEventListener('mousemove', mv); window.removeEventListener('mouseup', upf);
+          if (moved && s.marquee) { const m = s.marquee, z = view.zoom, a = { x0: (m.x - view.px) / z, y0: (m.y - view.py) / z, x1: (m.x + m.w - view.px) / z, y1: (m.y + m.h - view.py) / z };
+            const ids = Object.keys(geo).filter((i) => { const G = geo[i]; return G.n.x < a.x1 && G.n.x + W > a.x0 && G.n.y < a.y1 && G.n.y + G.h > a.y0; });
+            d.sel = ids.length > 1 ? { type: 'multi', ids } : ids.length ? { type: 'table', id: ids[0] } : null;
+          } else d.sel = null;
+          s.marquee = null; this.up();
+        };
+        window.addEventListener('mousemove', mv); window.addEventListener('mouseup', upf);
+      }
+    });
+
+    /* minimap */
+    {
+      const c = this.cvSize(), vp = { x0: -view.px / view.zoom, y0: -view.py / view.zoom, x1: (c.width - view.px) / view.zoom, y1: (c.height - view.py) / view.zoom };
+      const b = this.bounds(d) || vp, B = { x0: Math.min(b.x0, vp.x0) - 20, y0: Math.min(b.y0, vp.y0) - 20, x1: Math.max(b.x1, vp.x1) + 20, y1: Math.max(b.y1, vp.y1) + 20 };
+      const k = Math.min(180 / (B.x1 - B.x0), 120 / (B.y1 - B.y0)), ox = (180 - (B.x1 - B.x0) * k) / 2, oy = (120 - (B.y1 - B.y0) * k) / 2;
+      const R = (x) => Math.round(x * 10) / 10;
+      v.miniNodes = Object.keys(geo).map((i) => ({ x: R(ox + (geo[i].n.x - B.x0) * k), y: R(oy + (geo[i].n.y - B.y0) * k), w: R(W * k), h: R(geo[i].h * k), cls: 'mn' + (selT.includes(i) ? ' sel' : '') }));
+      v.mv = { x: R(ox + (vp.x0 - B.x0) * k), y: R(oy + (vp.y0 - B.y0) * k), w: R((vp.x1 - vp.x0) * k), h: R((vp.y1 - vp.y0) * k) };
+      v.miniClick = h((e) => { const r = e.currentTarget.getBoundingClientRect(); const wx = (e.clientX - r.left - ox) / k + B.x0, wy = (e.clientY - r.top - oy) / k + B.y0; view.px = c.width / 2 - wx * view.zoom; view.py = c.height / 2 - wy * view.zoom; });
+    }
+
+    /* splitters */
+    const split = (side) => (e) => { e.preventDefault(); const sx = e.clientX, w0 = side === 'l' ? s.leftW : s.rightW; const mv = (ev) => { const dx = ev.clientX - sx; if (side === 'l') s.leftW = Math.max(200, Math.min(440, w0 + dx)); else s.rightW = Math.max(240, Math.min(460, w0 - dx)); this.up(); }; const upf = () => { window.removeEventListener('mousemove', mv); window.removeEventListener('mouseup', upf); }; window.addEventListener('mousemove', mv); window.addEventListener('mouseup', upf); };
+    v.splitL = split('l'); v.splitR = split('r');
+
+    /* properties panel */
+    const selTable = sel && (sel.type === 'table' || sel.type === 'field') ? this.tbl(d, sel.type === 'table' ? sel.id : sel.tid) : null;
+    const selField = sel && sel.type === 'field' && selTable ? selTable.fields.find((f) => f.id === sel.fid) : null;
+    const ed1 = (obj, k, key) => h((e) => { const val = e.target.value; this.commit(d, () => { obj[k] = val; }, key + ':' + k); });
+    Object.assign(v, { isModel: !sel, isTable: !!selTable && !selField, isField: !!selField, isRel: !!selRel, isMulti: !!sel && sel.type === 'multi',
+      propKind: !sel ? '模型' : selField ? '字段' : selTable ? '表' : selRel ? '关系' : '多选' });
+    if (!sel) v.pm = { name: d.model.name, code: d.model.code, comment: d.model.comment, setName: ed1(d.model, 'name', 'm'), setCode: ed1(d.model, 'code', 'm'), setComment: ed1(d.model, 'comment', 'm'), db: K.DBN[db], ownerLabel: db === 'mysql' ? 'Database' : db === 'pg' ? 'Schema' : 'Owner', owner: d.model.owner, path: d.path, tables: d.model.tables.length, rels: d.model.relations.length, dgs: d.layout.diagrams.length };
+    if (selTable && !selField) {
+      const t = selTable, o = t.opts || {}, rels = d.model.relations.filter((r) => r.parent === t.id || r.child === t.id);
+      const dup = d.model.tables.some((x) => x.id !== t.id && x.code.toUpperCase() === t.code.toUpperCase());
+      v.pt = { name: t.name, code: t.code, comment: t.comment, codeCls: 'inp mono' + (dup || !t.code ? ' bad' : ''), setName: ed1(t, 'name', t.id), setCode: ed1(t, 'code', t.id), setComment: ed1(t, 'comment', t.id),
+        edit: h(() => this.openEd(d, t.id, 'fields')), off: !inDg(t.id), add: h(() => this.addToDg(d, t.id)), count: t.fields.length,
+        fields: t.fields.map((f) => ({ code: f.code, type: this.ft(f), pk: f.pk, fk: fk.has(f.id), click: h(() => { d.sel = { type: 'field', tid: t.id, fid: f.id }; }) })),
+        relCount: rels.length, rels: rels.map((r) => ({ dir: r.parent === t.id ? '被引用 ←' : '引用 →', other: (this.tbl(d, r.parent === t.id ? r.child : r.parent) || {}).code + ' · ' + r.code, click: h(() => { d.sel = { type: 'rel', id: r.id }; }) })),
+        dbTitle: K.DBN[db] + ' 专属属性',
+        dbLine: db === 'oracle' ? (o.auto === 'seq' ? '主键由序列 ' + o.seq + ' + 触发器生成' : '主键不自动生成') + (o.tablespace ? '；表空间 ' + o.tablespace : '') : db === 'mysql' ? (o.auto === 'auto' ? 'AUTO_INCREMENT 主键' : '主键不自增') + '；' + o.engine + '，' + o.charset : o.auto === 'identity' ? 'IDENTITY 列主键' : o.auto === 'serial' ? 'BIGSERIAL 主键' : '主键不自动生成' };
+    }
+    if (selField) {
+      const f = selField, t = selTable;
+      v.pf = { tcode: t.code, back: h(() => { d.sel = { type: 'table', id: t.id }; }), name: f.name, code: f.code, comment: f.comment, setName: ed1(f, 'name', f.id), setCode: ed1(f, 'code', f.id), setComment: ed1(f, 'comment', f.id),
+        type: this.ft(f), nullable: f.nn || f.pk ? '否（NOT NULL）' : '是', def: f.def || '—', keys: [f.pk ? '主键' : '', fk.has(f.id) ? '外键' : ''].filter(Boolean).join('、') || '—', edit: h(() => { this.openEd(d, t.id, 'fields'); s.ed.row = f.id; }) };
+    }
+    if (selRel) {
+      const r = selRel, P = this.tbl(d, r.parent), C = this.tbl(d, r.child);
+      const fc = (T, id) => { const f = T && T.fields.find((x) => x.id === id); return f ? f.code + '  ' + this.ft(f) : null; };
+      const opt = r.pairs.some((p) => { const f = C && C.fields.find((x) => x.id === p.c); return f && !f.nn && !f.pk; });
+      v.pr = { name: r.name, code: r.code, setName: ed1(r, 'name', r.id), setCode: ed1(r, 'code', r.id), parent: P ? P.code : '—', child: C ? C.code : '—', n: r.pairs.length, composite: r.pairs.length > 1,
+        card: opt ? '0..1 : N（子表外键可为空）' : '1 : N（一对多）', goParent: h(() => this.locate(d, r.parent)), goChild: h(() => this.locate(d, r.child)),
+        pairs: r.pairs.map((p) => { const a = fc(P, p.p), b = fc(C, p.c); return { p: a || '缺失', c: b || '缺失', pCls: 'mono' + (a ? '' : ' bad'), cCls: 'mono' + (b ? '' : ' bad') }; }),
+        dels: (db === 'oracle' ? ['NO ACTION', 'CASCADE', 'SET NULL'] : ['NO ACTION', 'RESTRICT', 'CASCADE', 'SET NULL']).map((x) => ({ label: x, cls: 'chip' + (r.onDelete === x ? ' on' : ''), pick: h(() => this.commit(d, () => { r.onDelete = x; })) })),
+        edit: h(() => this.openEd(d, r.child, 'fks')), del: h(act.delSel) };
+    }
+    if (sel && sel.type === 'multi') Object.assign(v, { multiN: sel.ids.length, multiCodes: sel.ids.map((i) => this.tbl(d, i).code).join('、'), multiRemove: h(() => this.removeFromDg(d, sel.ids)) });
+
+    /* check + status */
+    const ck = d.check, cnt = (l) => (ck ? ck.issues.filter((i) => i.level === l).length : 0);
+    Object.assign(v, {
+      issues: ck ? ck.issues.map((i) => ({ text: i.text, obj: i.obj, lvCls: 'lv ' + i.level, lvText: i.level === 'error' ? '错误' : i.level === 'warn' ? '警告' : '提示',
+        go: h(() => { if (i.rid) { const r = this.rel(d, i.rid); if (r) { this.locate(d, r.child); d.sel = { type: 'rel', id: r.id }; } } else this.locate(d, i.tid, i.fid); s.rightOpen = true; }) })) : [],
+      checkNone: !ck, checkClean: !!ck && !ck.issues.length, checkStale: !!ck && ck.stale,
+      checkSummary: ck ? '· ' + cnt('error') + ' 个错误，' + cnt('warn') + ' 个警告，' + cnt('info') + ' 个提示' : '',
+      stDb: K.DBN[db], stTables: d.model.tables.length, stRels: d.model.relations.length,
+      stCheck: ck ? '模型检查：' + cnt('error') + ' 错误 · ' + cnt('warn') + ' 警告 · ' + cnt('info') + ' 提示' + (ck.stale ? '（已过期）' : '') : '模型检查：未执行',
+      hasCompat: d.compat.length > 0, compatN: d.compat.length || 3, showCompat: h(() => { s.dlg = { type: 'import', step: 'compat', file: 'mysql', view: d.compat }; }),
+      stSave: d.saving ? '保存中…' : d.dirty ? '● 有未保存的更改' : d.savedAt ? '已保存 ' + d.savedAt + '（演示，未写入磁盘）' : '无更改', stSaveCls: d.dirty && !d.saving ? 'st-dirty' : ''
+    });
+
+    /* small dialogs */
+    if (v.dDel) {
+      const t = this.tbl(d, dl.tid) || { code: '', name: '', fields: [] }, rels = d.model.relations.filter((r) => r.parent === dl.tid || r.child === dl.tid);
+      v.del = { code: t.code, name: t.name, fields: t.fields.length, dgs: d.layout.diagrams.filter((x) => x.nodes[dl.tid]).length, hasRels: rels.length > 0, noRels: !rels.length, relN: rels.length,
+        rels: rels.map((r) => ({ code: r.code, parent: (this.tbl(d, r.parent) || {}).code, child: (this.tbl(d, r.child) || {}).code })), notInDg: !inDg(dl.tid),
+        removeOnly: h(() => { s.dlg = null; this.removeFromDg(d, [dl.tid]); }), confirm: h(() => { s.dlg = null; this.deleteTable(d, dl.tid); }) };
+    }
+    if (v.dClose) { const x = s.docs.find((o) => o.id === dl.id); v.cl = { file: x ? x.file : '', discard: h(() => { s.dlg = null; if (x) this.closeDoc(x); }), save: h(() => { s.dlg = null; if (x) this.save(x, () => this.closeDoc(x)); }) }; }
+    if (v.dRename) {
+      const err = !dl.code.trim() ? '代码不能为空' : d.model.tables.some((t) => t.id !== dl.tid && t.code.toUpperCase() === dl.code.trim().toUpperCase()) ? '模型中已存在代码为 ' + dl.code + ' 的表' : dl.code.length > K.IDLEN[db] ? K.DBN[db] + ' 标识符最长 ' + K.IDLEN[db] + ' 个字符' : '';
+      v.rn = { name: dl.name, code: dl.code, setName: h((e) => { dl.name = e.target.value; }), setCode: h((e) => { dl.code = e.target.value; }), bad: !!err, err, codeCls: 'inp mono' + (err ? ' bad' : ''),
+        ok: h(() => { const t = this.tbl(d, dl.tid); this.commit(d, () => { t.name = dl.name.trim(); t.code = dl.code.trim(); }); s.dlg = null; }) };
+    }
+    if (v.dNewRel) {
+      v.nr = { parents: d.model.tables.map((t) => { const ok = t.fields.some((f) => f.pk); return { label: t.code, disabled: !ok, tip: ok ? t.name : '没有主键，不能作为父表', cls: 'chip' + (dl.parent === t.id ? ' on' : ''), pick: h(() => { dl.parent = t.id; }) }; }),
+        children: d.model.tables.map((t) => ({ label: t.code, cls: 'chip' + (dl.child === t.id ? ' on' : ''), pick: h(() => { dl.child = t.id; }) })), bad: !dl.parent || !dl.child,
+        ok: h(() => { s.dlg = null; this.openEd(d, dl.child, 'fks', dl.parent); }) };
+    }
+
+    /* table editor */
+    if (s.ed) {
+      const ed = s.ed, t = ed.t, o = t.opts, st = this.edState(d);
+      const chip = (label, on, pick) => ({ label, cls: 'chip' + (on ? ' on' : ''), pick: h(pick) });
+      const colChips = (arr) => t.fields.map((f) => chip(f.code || '（空）', arr.includes(f.id), () => { const i = arr.indexOf(f.id); if (i >= 0) arr.splice(i, 1); else arr.push(f.id); }));
+      const num = (f, k) => h((e) => { const x = e.target.value.replace(/\D/g, ''); f[k] = x === '' ? '' : +x; });
+      const txt = (obj, k) => h((e) => { obj[k] = e.target.value; });
+      const parents = d.model.tables.filter((x) => x.fields.some((f) => f.pk));
+      const pTable = (id) => (id === ed.tid ? t : this.tbl(d, id));
+      const sqlRels = ed.rels.map((r) => { const P = pTable(r.parent); return { code: r.code, parent: P ? P.code : '?', onDelete: r.onDelete, bad: !!st.relErr[r.id], p: r.pairs.map((p) => ((P ? P.fields.find((f) => f.id === p.p) : null) || {}).code), c: r.pairs.map((p) => p.c.trim()) }; });
+      const tabs = [['basic', '基本信息', st.codeDup ? 1 : 0], ['fields', '字段', st.fErr], ['keys', '主键与唯一约束', t.fields.some((f) => f.pk) ? 0 : 1], ['fks', '外键', st.fkErr], ['idx', '索引', 0], ['sql', 'SQL 预览', 0]];
+      const autos = db === 'oracle' ? [['none', '不自动生成'], ['seq', '序列 + 触发器']] : db === 'mysql' ? [['none', '不自增'], ['auto', 'AUTO_INCREMENT']] : [['none', '不自动生成'], ['identity', 'IDENTITY 列'], ['serial', 'BIGSERIAL']];
+      const total = st.fErr + st.fkErr + (st.codeDup ? 1 : 0);
+      v.hasEd = true;
+      v.ed = {
+        code: t.code, name: t.name, comment: t.comment, db: K.DBN[db], setName: txt(t, 'name'), setCode: txt(t, 'code'), setComment: txt(t, 'comment'),
+        codeBad: !!st.codeDup, codeErr: st.codeDup, codeCls: 'inp mono' + (st.codeDup ? ' bad' : ''),
+        tabs: tabs.map((x) => ({ label: x[1], err: x[2] || 0, cls: 'etab' + (ed.tab === x[0] ? ' on' : ''), pick: h(() => { ed.tab = x[0]; }) })),
+        tBasic: ed.tab === 'basic', tFields: ed.tab === 'fields', tKeys: ed.tab === 'keys', tFks: ed.tab === 'fks', tIdx: ed.tab === 'idx', tSql: ed.tab === 'sql',
+        isOracle: db === 'oracle', isMysql: db === 'mysql',
+        autos: autos.map((a) => chip(a[1], o.auto === a[0], () => { o.auto = a[0]; if (a[0] === 'seq' && !o.seq) o.seq = ('SEQ_' + t.code).slice(0, 30); })),
+        showSeq: db === 'oracle' && o.auto === 'seq', seq: o.seq || '', setSeq: txt(o, 'seq'), tablespace: o.tablespace || '', setTablespace: txt(o, 'tablespace'),
+        engines: ['InnoDB', 'MyISAM'].map((x) => chip(x, o.engine === x, () => { o.engine = x; })), charset: o.charset || '', setCharset: txt(o, 'charset'),
+        dbNote: db === 'oracle' ? 'Oracle 11g 没有 IDENTITY 列（12c 起提供）。需要自动生成主键时，使用序列配合 BEFORE INSERT 触发器；标识符最长 30 个字符，VARCHAR2 最长 4000。' : db === 'mysql' ? 'AUTO_INCREMENT 只作用于单列数值主键。存储引擎和字符集会写入建表语句。' : 'PostgreSQL 10 起推荐 IDENTITY 列；BIGSERIAL 为兼容写法。两者都只作用于单列主键。',
+        typeList: 'dt-' + db, fieldCount: t.fields.length, noFields: !t.fields.length,
+        addField: h(() => { const lower = db !== 'oracle'; let k = 1; const base = lower ? 'new_column_' : 'NEW_COLUMN_'; while (t.fields.some((f) => f.code === base + k)) k++; const f = Object.assign({ id: this.uid('F'), code: base + k, name: '', nn: false, pk: false, def: '', comment: '' }, this.pt(db === 'oracle' ? 'VARCHAR2(50)' : 'VARCHAR(50)')); t.fields.push(f); ed.row = f.id; }),
+        fields: t.fields.map((f, i) => {
+          const T = (f.type || '').toUpperCase(), e = st.errs[f.id], w = st.warns[f.id], es = e ? e.join('；') : '';
+          return { no: i + 1, pk: f.pk, code: f.code, name: f.name, type: f.type, len: f.len, prec: f.prec, scale: f.scale, nullable: !f.nn && !f.pk, def: f.def, comment: f.comment,
+            cls: 'gr' + (ed.row === f.id ? ' cur' : ''), codeCls: 'cell mono' + (/代码|标识符/.test(es) ? ' bad' : ''), typeCls: 'cell mono' + (w && /不支持/.test(w.join()) ? ' bad' : ''),
+            lenCls: 'cell mono' + (/长度/.test(es) ? ' bad' : ''), precCls: 'cell mono' + (/精度|小数位/.test(es) ? ' bad' : ''),
+            noLen: !K.LEN.includes(T), noPrec: !K.PREC.includes(T), noScale: !K.SCALE.includes(T),
+            hasErr: !!e, err: es, hasWarn: !!w, warn: w ? w.join('；') : '', first: i === 0, last: i === t.fields.length - 1,
+            focus: h(() => { ed.row = f.id; }), setCode: txt(f, 'code'), setName: txt(f, 'name'), setDef: txt(f, 'def'), setComment: txt(f, 'comment'),
+            setType: h((ev) => { f.type = ev.target.value.toUpperCase(); const U = f.type; if (!K.LEN.includes(U)) f.len = ''; if (!K.PREC.includes(U)) f.prec = ''; if (!K.SCALE.includes(U)) f.scale = ''; }),
+            setLen: num(f, 'len'), setPrec: num(f, 'prec'), setScale: num(f, 'scale'),
+            togPk: h(() => { f.pk = !f.pk; if (f.pk) f.nn = true; }), togNull: h(() => { f.nn = !f.nn; }),
+            up: h(() => { t.fields.splice(i - 1, 0, t.fields.splice(i, 1)[0]); }), down: h(() => { t.fields.splice(i + 1, 0, t.fields.splice(i, 1)[0]); }), del: h(() => { t.fields.splice(i, 1); }) };
+        }),
+        pkName: t.pkName, setPkName: txt(t, 'pkName'), noPk: !t.fields.some((f) => f.pk),
+        pkChips: t.fields.map((f) => chip(f.code || '（空）', f.pk, () => { f.pk = !f.pk; if (f.pk) f.nn = true; })),
+        uks: t.uniques.map((u, i) => ({ code: u.code, setCode: txt(u, 'code'), chips: colChips(u.cols), del: h(() => t.uniques.splice(i, 1)) })), noUks: !t.uniques.length,
+        addUk: h(() => t.uniques.push({ id: this.uid('uk'), code: (db === 'oracle' ? 'UK_' : 'uk_') + t.code + '_' + (t.uniques.length + 1), cols: [] })),
+        idx: t.indexes.map((u, i) => ({ code: u.code, setCode: txt(u, 'code'), unique: u.unique, togUnique: h(() => { u.unique = !u.unique; }), chips: colChips(u.cols), del: h(() => t.indexes.splice(i, 1)) })), noIdx: !t.indexes.length,
+        addIdx: h(() => t.indexes.push({ id: this.uid('ix'), code: (db === 'oracle' ? 'IDX_' : 'idx_') + t.code + '_' + (t.indexes.length + 1), cols: [], unique: false })),
+        noParents: !parents.length, addFk: h(() => this.edAddFk(d, (parents.find((x) => x.id !== ed.tid) || parents[0]).id)),
+        fks: ed.rels.map((r, i) => { const P = pTable(r.parent); return { code: r.code, setCode: txt(r, 'code'), parent: P ? P.code : '?', isNew: r.isNew, bad: !!st.relErr[r.id], err: st.relErr[r.id] || '',
+          parents: parents.map((x) => chip(x.code, r.parent === x.id, () => { r.parent = x.id; r.pairs = this.pkPairs(x.id === ed.tid ? t : x, t); })),
+          pairs: r.pairs.map((p) => { const pf = P ? P.fields.find((f) => f.id === p.p) : null; return { p: pf ? pf.code : '缺失', pt: pf ? this.ft(pf) : '', c: p.c, set: txt(p, 'c'), cls: 'inp mono' + (t.fields.some((f) => f.code === p.c.trim()) ? '' : ' bad') }; }),
+          dels: (db === 'oracle' ? ['NO ACTION', 'CASCADE', 'SET NULL'] : ['NO ACTION', 'RESTRICT', 'CASCADE', 'SET NULL']).map((x) => chip(x, r.onDelete === x, () => { r.onDelete = x; })),
+          del: h(() => ed.rels.splice(i, 1)) }; }),
+        noFks: !ed.rels.length, colOpts: t.fields.map((f) => ({ v: f.code })),
+        inbound: d.model.relations.filter((r) => r.parent === ed.tid && r.child !== ed.tid).map((r) => { const C = this.tbl(d, r.child); return { code: r.code, child: C ? C.code : '?', cols: r.pairs.map((p) => ((C ? C.fields.find((f) => f.id === p.c) : null) || {}).code || '缺失').join(', ') }; }),
+        noInbound: !d.model.relations.some((r) => r.parent === ed.tid && r.child !== ed.tid),
+        sql: ed.tab === 'sql' ? this.ddl(d, t, sqlRels) : '',
+        copySql: h(() => { try { navigator.clipboard.writeText(this.ddl(d, t, sqlRels)); this.toast('SQL 已复制到剪贴板'); } catch (err) { this.toast('当前环境不允许访问剪贴板，请手动选择文本复制'); } }),
+        summary: total ? total + ' 处校验问题' + (st.block ? '；字段代码重复或为空、表代码无效时不能应用' : '；可以应用，问题会出现在模型检查中') : '校验通过',
+        sumCls: total ? 'st-dirty' : '', blocked: st.block > 0, applyTip: st.block ? '请先解决字段代码重复 / 为空或表代码问题' : '将更改写入模型（可撤销）',
+        apply: h(() => this.applyEd(d)), cancel: h(() => { s.ed = null; })
+      };
+      if (total) v.ed.sumCls = 'st-dirty';
+    }
+    return v;
+  }
+}
+</script>
+</body>
+</html>
