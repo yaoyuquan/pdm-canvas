@@ -2,13 +2,13 @@
 
 ## PowerDesigner version
 
-All fixtures were saved by **PowerDesigner 16.7.5.6978**. Verify round trips with this same version.
+All private fixtures were saved by **PowerDesigner 16.7.5.6978**. Verify round trips with this same version.
 
 ## Layout
 
 - `private/` — real-world PDM files, **gitignored, never committed**. Tests that need them must skip gracefully when the folder is missing (e.g. on CI or another machine).
 - `output/` — files written by round-trip tests (gitignored).
-- Synthetic, shareable fixtures (to be added) live directly in this folder.
+- `synthetic/minimal.pdm` — hand-written, committed fixture (2 tables, 1 FK, 1 index, 1 diagram, CRLF) so tests run on CI. Not produced by PowerDesigner; real compatibility claims need the private fixtures.
 
 ## Private fixtures (local only)
 
