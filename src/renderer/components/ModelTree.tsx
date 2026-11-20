@@ -6,28 +6,38 @@ import type { Selection } from '../selection';
 
 interface Props {
   model: PdmModel;
+  /** Highlighted tree node; kept in sync with canvas selection. */
   selection: Selection;
   onSelect: (sel: Selection) => void;
 }
 
+/** Ids of columns that are the child side of a foreign key join. */
 function fkColumnIds(model: PdmModel): Set<string> {
   const ids = new Set<string>();
   for (const r of model.references) for (const j of r.joins) if (j.childColumnId) ids.add(j.childColumnId);
   return ids;
 }
 
+/** Ids of the table's primary key columns. */
 function pkColumnIds(t: PdmTable): Set<string> {
   return new Set(t.keys.find((k) => k.id === t.primaryKeyId)?.columnIds ?? []);
 }
 
+/**
+ * Left-hand object browser: tables with their columns (PK/FK icons), plus
+ * views and sequences, filtered by a search box.
+ */
 export function ModelTree({ model, selection, onSelect }: Props) {
   const [query, setQuery] = useState('');
 
+  // Rebuilt only when the model or the search text changes.
   const treeData = useMemo<TreeDataNode[]>(() => {
     const q = query.trim().toLowerCase();
+    // Case-insensitive substring match on any of the given texts.
     const hit = (...s: string[]) => !q || s.some((x) => x.toLowerCase().includes(q));
     const fks = fkColumnIds(model);
 
+    // A table matches by its own code/name or by any of its columns.
     const tables = model.tables
       .filter((t) => hit(t.code, t.name) || t.columns.some((c) => hit(c.code, c.name)))
       .sort((a, b) => a.code.localeCompare(b.code))
@@ -62,6 +72,7 @@ export function ModelTree({ model, selection, onSelect }: Props) {
         };
       });
 
+    // Top-level folders; views and sequences only when the model has any.
     const groups: TreeDataNode[] = [
       { key: 'g:tables', title: `表 (${tables.length})`, selectable: false, children: tables },
     ];
@@ -84,6 +95,7 @@ export function ModelTree({ model, selection, onSelect }: Props) {
     return groups;
   }, [model, query]);
 
+  // Tree keys encode the object: "t:<table>", "c:<table>:<column>".
   const selectedKey = !selection
     ? []
     : selection.type === 'table'
@@ -108,6 +120,7 @@ export function ModelTree({ model, selection, onSelect }: Props) {
         defaultExpandedKeys={['g:tables']}
         selectedKeys={selectedKey}
         treeData={treeData}
+        // Translate the clicked tree key back into a selection.
         onSelect={(keys) => {
           const k = String(keys[0] ?? '');
           if (k.startsWith('t:')) onSelect({ type: 'table', tableId: k.slice(2) });

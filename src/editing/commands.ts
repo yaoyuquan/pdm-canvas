@@ -1,7 +1,7 @@
 /**
  * Command layer: every model edit is a command with before/after values,
  * applied immutably. The history reducer provides undo/redo. Both the
- * property panel and (later) the canvas dispatch commands through here.
+ * property panel and the canvas dispatch commands through here.
  */
 import { readAttr, writeAttr, type EditableAttr } from '../pdm/changes';
 import type { PdmColumn, PdmModel, PdmTable } from '../pdm/types';
@@ -16,7 +16,25 @@ export interface SetAttrCommand {
   after: string;
 }
 
-export type Command = SetAttrCommand;
+/**
+ * A structural edit (add/delete table or column, primary key, symbols),
+ * stored as the model before and after. Models are immutable and share
+ * unchanged parts, so keeping both is cheap; undo restores `before`.
+ */
+export interface ModelCommand {
+  type: 'model';
+  /** Shown in undo/redo tooltips, e.g. "新建表 Table_1". */
+  label: string;
+  before: PdmModel;
+  after: PdmModel;
+}
+
+export type Command = SetAttrCommand | ModelCommand;
+
+/** Wraps the result of a structural edit as a command, or null if nothing changed. */
+export function modelCommand(label: string, before: PdmModel, after: PdmModel): ModelCommand | null {
+  return before === after ? null : { type: 'model', label, before, after };
+}
 
 export interface History {
   model: PdmModel;
@@ -69,6 +87,9 @@ export function setAttrCommand(
 }
 
 function apply(model: PdmModel, cmd: Command, dir: 'do' | 'undo'): PdmModel {
+  // History is linear, so the current model is exactly the command's
+  // `after` (when undoing) or `before` (when redoing).
+  if (cmd.type === 'model') return dir === 'do' ? cmd.after : cmd.before;
   return setAttr(model, cmd.target, cmd.attr, dir === 'do' ? cmd.after : cmd.before);
 }
 
@@ -106,6 +127,7 @@ const ATTR_LABEL: Record<EditableAttr, string> = {
 
 /** Human-readable description, e.g. for undo/redo tooltips. */
 export function describeCommand(model: PdmModel, cmd: Command): string {
+  if (cmd.type === 'model') return cmd.label;
   const table = model.tables.find((t) => t.id === cmd.target.tableId);
   const column =
     cmd.target.kind === 'column'

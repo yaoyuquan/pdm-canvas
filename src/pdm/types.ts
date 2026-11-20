@@ -16,6 +16,11 @@ export interface PdmModel {
   target: string;
   /** PowerDesigner version that last saved the file, e.g. `16.7.5.6978`. */
   pdVersion: string;
+  /**
+   * Highest numeric part of any `Id` in the file (`o123` -> 123). New
+   * objects get Ids above it, so they never collide with existing ones.
+   */
+  maxIdNum: number;
   tables: PdmTable[];
   references: PdmReference[];
   diagrams: PdmDiagram[];
@@ -33,6 +38,8 @@ export interface PdmNamedObject {
 }
 
 export interface PdmTable extends PdmNamedObject {
+  /** Id of the model or package whose `c:Tables` holds this table. */
+  parentId: string;
   ownerId: string | null;
   columns: PdmColumn[];
   keys: PdmKey[];
@@ -46,6 +53,11 @@ export interface PdmColumn extends PdmNamedObject {
   precision: number | null;
   mandatory: boolean;
   defaultValue: string;
+  /**
+   * Foreign key column that PowerDesigner created by migrating a parent key
+   * column (`AutoMigrated`). Deleting the reference deletes such a column.
+   */
+  autoMigrated: boolean;
 }
 
 export interface PdmKey extends PdmNamedObject {
@@ -58,6 +70,8 @@ export interface PdmIndex extends PdmNamedObject {
 }
 
 export interface PdmReference extends PdmNamedObject {
+  /** Id of the model or package whose `c:References` holds this reference. */
+  parentId: string;
   parentTableId: string;
   childTableId: string;
   parentKeyId: string | null;
@@ -67,11 +81,14 @@ export interface PdmReference extends PdmNamedObject {
 
 export interface PdmReferenceJoin {
   id: string;
+  objectId: string;
   parentColumnId: string | null;
   childColumnId: string | null;
 }
 
 export interface PdmDiagram extends PdmNamedObject {
+  /** Id of the model or package that owns the diagram; new tables go there. */
+  parentId: string;
   tableSymbols: PdmTableSymbol[];
   referenceSymbols: PdmReferenceSymbol[];
 }
@@ -95,5 +112,10 @@ export interface PdmReferenceSymbol {
   referenceId: string;
   sourceSymbolId: string | null;
   destinationSymbolId: string | null;
+  /** Bounding box including the label area, as PowerDesigner stores it. */
+  rect: PdmRect | null;
+  /** Polyline from the source table symbol to the destination table symbol. */
   points: Array<[number, number]>;
+  /** Right-angle routing (`CornerStyle` 2): segments are horizontal or vertical. */
+  orthogonal: boolean;
 }

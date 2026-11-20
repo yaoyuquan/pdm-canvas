@@ -6,15 +6,31 @@
  * TODO: move parsing/serialization into an Electron utility process
  * (CLAUDE.md rule 4) once files are large enough to stall the main process.
  */
-import { BrowserWindow, dialog, ipcMain } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { readPdm, writeChanges, type PdmDocument } from '../pdm';
+import { DBMS_OPTIONS, instantiateTemplate, readPdm, writeModel, type DbmsKind, type PdmDocument } from '../pdm';
 import { IPC, type OpenedDocument, type OpenResult, type SaveRequest, type SaveResult } from '../shared/api';
+import oracle11gTemplate from '../../resources/templates/oracle11g.pdm?raw';
+import mysql50Template from '../../resources/templates/mysql50.pdm?raw';
+import postgresql9Template from '../../resources/templates/postgresql9.pdm?raw';
+
+/**
+ * Blank models saved by PowerDesigner 16.7.5, bundled into the main process
+ * as strings (Vite `?raw`), so packaging needs no extra resource files.
+ * Vite keeps the CRLF line endings PowerDesigner writes.
+ */
+const TEMPLATES: Record<DbmsKind, string> = {
+  oracle11g: oracle11gTemplate,
+  mysql50: mysql50Template,
+  postgresql9: postgresql9Template,
+};
 
 interface OpenDoc {
-  filePath: string;
+  /** Null until a new model is saved for the first time. */
+  filePath: string | null;
   pdm: PdmDocument;
   savedByApp: boolean;
 }
@@ -34,10 +50,44 @@ function toOpened(docId: string, d: OpenDoc): OpenedDocument {
   return {
     docId,
     filePath: d.filePath,
-    fileName: path.basename(d.filePath),
+    fileName: d.filePath ? path.basename(d.filePath) : newFileName(d.pdm),
     model: d.pdm.model,
     savedByApp: d.savedByApp,
   };
+}
+
+/** Suggested file name for a model that has no file yet, from its Code. */
+function newFileName(pdm: PdmDocument): string {
+  return `${pdm.model.code || pdm.model.name || 'NewModel'}.pdm`;
+}
+
+/** OS login name, which PowerDesigner also records as Creator/Modifier. */
+function currentUser(): string {
+  try {
+    return os.userInfo().username;
+  } catch {
+    // userInfo() throws when the account has no username or home directory.
+    return 'PDMCanvas';
+  }
+}
+
+/**
+ * Creates an unsaved model for the given DBMS from its blank template.
+ * The document has no file path, so its first save always asks where to save.
+ */
+export function newPdmDocument(dbms: DbmsKind): OpenResult {
+  try {
+    // The value comes over IPC, so check it rather than trusting the type.
+    if (!DBMS_OPTIONS.some((o) => o.kind === dbms)) throw new Error(`不支持的数据库类型：${dbms}`);
+    const text = instantiateTemplate(TEMPLATES[dbms], { user: currentUser(), now: new Date(), newGuid: randomUUID });
+    const docId = randomUUID();
+    // Kept only in memory until saved; nothing is written to disk here.
+    const d: OpenDoc = { filePath: null, pdm: readPdm(text), savedByApp: false };
+    docs.set(docId, d);
+    return { ok: true, doc: toOpened(docId, d) };
+  } catch (err) {
+    return errorResult(err);
+  }
 }
 
 export async function openPdmFile(filePath: string): Promise<OpenResult> {
@@ -57,11 +107,21 @@ async function savePdm(win: BrowserWindow | null, req: SaveRequest): Promise<Sav
   if (!d) return errorResult(new Error('文档已关闭或不存在'));
 
   let target = d.filePath;
-  if (req.saveAs || !d.savedByApp) {
-    const parsed = path.parse(d.filePath);
+  // Ask for a path on Save As, on the first save of an imported file (never
+  // overwrite the original silently), and for a new model that has no file yet.
+  if (req.saveAs || !d.savedByApp || !target) {
+    let defaultPath: string;
+    if (target) {
+      // Existing file: suggest a sibling copy next to it.
+      const parsed = path.parse(target);
+      defaultPath = path.join(parsed.dir, `${parsed.name}_edited${parsed.ext || '.pdm'}`);
+    } else {
+      // New model: start in the user's Documents folder.
+      defaultPath = path.join(app.getPath('documents'), newFileName(d.pdm));
+    }
     const options: Electron.SaveDialogOptions = {
-      title: '另存为 PDM',
-      defaultPath: path.join(parsed.dir, `${parsed.name}_edited${parsed.ext || '.pdm'}`),
+      title: target ? '另存为 PDM' : '保存 PDM',
+      defaultPath,
       filters: PDM_FILTERS,
     };
     const picked = win ? await dialog.showSaveDialog(win, options) : await dialog.showSaveDialog(options);
@@ -70,7 +130,8 @@ async function savePdm(win: BrowserWindow | null, req: SaveRequest): Promise<Sav
   }
 
   try {
-    const text = writeChanges(d.pdm, req.changes);
+    // New objects are stamped with the OS user and save time, like PowerDesigner does.
+    const text = writeModel(d.pdm, req.model, { user: currentUser(), now: new Date() });
     // Re-read before touching disk: never write a file we cannot open again.
     const pdm = readPdm(text);
     // Write to a temp file and rename, so a failure never leaves a half-written PDM.
@@ -92,6 +153,9 @@ async function savePdm(win: BrowserWindow | null, req: SaveRequest): Promise<Sav
 const startupFile: string | null = process.argv.slice(1).find((a) => a.toLowerCase().endsWith('.pdm')) ?? null;
 
 export function registerDocumentIpc(): void {
+  // New model from a template; the renderer asked for the DBMS beforehand.
+  ipcMain.handle(IPC.new, (_event, dbms: DbmsKind): OpenResult => newPdmDocument(dbms));
+
   ipcMain.handle(
     IPC.openStartup,
     async (): Promise<OpenResult | null> => (startupFile ? openPdmFile(path.resolve(startupFile)) : null),

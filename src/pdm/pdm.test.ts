@@ -61,7 +61,9 @@ describe('synthetic fixture', () => {
   it('reads references and diagram symbols', () => {
     const ref = m.references[0];
     expect(ref).toMatchObject({ parentTableId: 'o7', childTableId: 'o8', parentKeyId: 'o11' });
-    expect(ref.joins).toEqual([{ id: 'o21', parentColumnId: 'o9', childColumnId: 'o13' }]);
+    expect(ref.joins).toEqual([
+      { id: 'o21', objectId: '00000000-0000-0000-0000-000000000021', parentColumnId: 'o9', childColumnId: 'o13' },
+    ]);
     const dg = m.diagrams[0];
     expect(dg.tableSymbols.map((s) => s.tableId)).toEqual(['o7', 'o8']);
     expect(dg.tableSymbols[0].rect).toEqual({ x1: -15000, y1: -5000, x2: -1000, y2: 6000 });

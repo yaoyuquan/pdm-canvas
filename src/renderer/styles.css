@@ -257,3 +257,109 @@ body {
 .statusbar-dirty {
   color: #d46b08;
 }
+
+/* Canvas palette (pointer / table tool), top-left like PowerDesigner's toolbox. */
+.palette {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 3px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  z-index: 2;
+}
+
+/* The table and reference tools: show a crosshair over the canvas. */
+.canvas-wrap.tool-table .canvas-host,
+.canvas-wrap.tool-table .canvas-host *,
+.canvas-wrap.tool-reference .canvas-host,
+.canvas-wrap.tool-reference .canvas-host * {
+  cursor: crosshair !important;
+}
+
+/* Arrow on a table border: press and drag it to another table to create a reference. */
+.link-handle {
+  position: absolute;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* While the handle shows, the press starts a link, not a move. */
+.canvas-wrap:has(.link-handle[style*='flex']) .canvas-host,
+.canvas-wrap:has(.link-handle[style*='flex']) .canvas-host * {
+  cursor: crosshair !important;
+}
+
+/* Column grid in the table property panel (PowerDesigner's Columns tab). */
+.column-grid-tools {
+  margin-bottom: 6px;
+}
+
+.column-grid .grid {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 12px;
+}
+
+.column-grid .grid th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--text-2);
+  padding: 2px 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.column-grid .grid th {
+  white-space: nowrap;
+}
+
+.column-grid .grid col.col-check {
+  width: 26px;
+}
+
+.column-grid .grid th:nth-child(n + 4) {
+  text-align: center;
+}
+
+/* Inputs fill their cell instead of imposing antd's minimum width. */
+.column-grid .grid input {
+  width: 100%;
+  min-width: 0;
+  padding-inline: 4px;
+}
+
+.column-grid .grid td {
+  padding: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+/* The highlighted row is the target of insert / delete / move. */
+.column-grid .grid tr.current td {
+  background: #eef3fe;
+}
+
+.column-grid .grid-check {
+  text-align: center;
+}
+
+.column-grid .grid-empty {
+  padding: 12px 0;
+  color: var(--text-2);
+  text-align: center;
+}

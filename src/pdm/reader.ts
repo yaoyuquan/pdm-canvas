@@ -59,6 +59,7 @@ export function readPdm(source: string): PdmDocument {
     ...r.named(modelEl),
     target: xml.piAttrs.Target ?? '',
     pdVersion: xml.piAttrs.version ?? '',
+    maxIdNum: maxIdNum(byId),
     tables: defs('o:Table').map((el) => r.table(el)),
     references: defs('o:Reference').map((el) => r.reference(el)),
     diagrams: defs('o:PhysicalDiagram').map((el) => r.diagram(el)),
@@ -111,6 +112,7 @@ class Reader {
   table(el: XElement): PdmTable {
     return {
       ...this.named(el),
+      parentId: ownerOf(el),
       ownerId: this.ref(el, 'Owner'),
       columns: this.items(el, 'Columns', 'o:Column').map((c) => this.column(c)),
       keys: this.items(el, 'Keys', 'o:Key').map((k) => this.key(k)),
@@ -127,6 +129,7 @@ class Reader {
       precision: this.num(el, 'Precision'),
       mandatory: this.attr(el, 'Column.Mandatory') === '1',
       defaultValue: this.attr(el, 'DefaultValue'),
+      autoMigrated: this.attr(el, 'AutoMigrated') === '1',
     };
   }
 
@@ -144,12 +147,14 @@ class Reader {
   reference(el: XElement): PdmReference {
     return {
       ...this.named(el),
+      parentId: ownerOf(el),
       parentTableId: this.ref(el, 'ParentTable') ?? '',
       childTableId: this.ref(el, 'ChildTable') ?? '',
       parentKeyId: this.ref(el, 'ParentKey'),
       cardinality: this.attr(el, 'Cardinality'),
       joins: this.items(el, 'Joins', 'o:ReferenceJoin').map((j) => ({
         id: j.attrs.Id,
+        objectId: this.attr(j, 'ObjectID'),
         parentColumnId: this.ref(j, 'Object1'),
         childColumnId: this.ref(j, 'Object2'),
       })),
@@ -173,11 +178,13 @@ class Reader {
           referenceId: this.ref(s, 'Object') ?? '',
           sourceSymbolId: this.ref(s, 'SourceSymbol'),
           destinationSymbolId: this.ref(s, 'DestinationSymbol'),
+          rect: parseRect(this.attr(s, 'Rect')),
           points: parsePoints(this.attr(s, 'ListOfPoints')),
+          orthogonal: this.attr(s, 'CornerStyle') === '2',
         });
       }
     }
-    return { ...this.named(el), tableSymbols, referenceSymbols };
+    return { ...this.named(el), parentId: ownerOf(el), tableSymbols, referenceSymbols };
   }
 }
 
@@ -192,6 +199,21 @@ export function parseRect(s: string): PdmRect | null {
 /** Parses `((x,y),(x,y),...)`. */
 export function parsePoints(s: string): Array<[number, number]> {
   return [...s.matchAll(/\(\s*(-?\d+)\s*,\s*(-?\d+)\s*\)/g)].map((m) => [Number(m[1]), Number(m[2])]);
+}
+
+/** Id of the object holding `el` in one of its collections (`<o:X><c:Y><el>`). */
+function ownerOf(el: XElement): string {
+  return el.parent?.parent?.attrs.Id ?? '';
+}
+
+/** Highest numeric part of the document's `oN` Ids. */
+function maxIdNum(byId: Map<string, XElement>): number {
+  let max = 0;
+  for (const id of byId.keys()) {
+    const n = /^o(\d+)$/.exec(id);
+    if (n) max = Math.max(max, Number(n[1]));
+  }
+  return max;
 }
 
 function indexIds(el: XElement, out: Map<string, XElement>): void {

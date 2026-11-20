@@ -13,3 +13,6 @@ export {
   type AttributeChange,
   type EditableAttr,
 } from './changes';
+export { instantiateTemplate, DBMS_OPTIONS, type DbmsKind, type DbmsOption, type InstantiateOptions } from './template';
+export { diffModel, writeModel, type ModelChange, type WriteContext } from './write';
+export { PdmTreeError } from './tree';

@@ -4,7 +4,8 @@
  * loaded/saved and the current model, so undoing back to the original
  * state yields no changes at all.
  */
-import { applyEdits, ATTR_ORDER, PdmPatchError, setAttribute } from './patch';
+import { PdmPatchError } from './patch';
+import { writeAttributeChanges } from './write';
 import type { PdmDocument } from './reader';
 import type { PdmColumn, PdmModel, PdmTable } from './types';
 
@@ -100,55 +101,13 @@ export function diffAttributes(base: PdmModel, current: PdmModel): AttributeChan
   return out;
 }
 
-/** Element kinds each attribute may be written to. */
-function allowedOn(attr: EditableAttr): ReadonlySet<string> {
-  return TABLE_ATTRS.includes(attr) ? new Set(['o:Table', 'o:Column']) : new Set(['o:Column']);
-}
-
-/** One `<a:X>` element to set or (when `value` is empty) remove. */
-interface ElementChange {
-  objectId: string;
-  attr: string;
-  value: string;
-}
-
-/** Expands an attribute change into the PDM elements it touches. */
-function toElements(ch: AttributeChange): ElementChange[] {
-  const { objectId, value } = ch;
-  switch (ch.attr) {
-    case 'DataType': {
-      const { length, precision } = parseDataType(value);
-      return [
-        { objectId, attr: 'DataType', value },
-        { objectId, attr: 'Length', value: length === null ? '' : String(length) },
-        { objectId, attr: 'Precision', value: precision === null ? '' : String(precision) },
-      ];
-    }
-    case 'Mandatory':
-      return [{ objectId, attr: 'Column.Mandatory', value: value === '1' ? '1' : '' }];
-    default:
-      return [{ objectId, attr: ch.attr, value }];
-  }
-}
-
-const orderOf = (attr: string) => ATTR_ORDER.indexOf(`a:${attr}`);
-
-/** Applies attribute changes to the document's original text and returns the new text. */
+/**
+ * Applies attribute changes to the document's original text and returns the
+ * new text. Uses the same patch-tree writer as structural changes.
+ */
 export function writeChanges(doc: PdmDocument, changes: AttributeChange[]): string {
-  const elements = changes.flatMap((ch) => {
-    const el = doc.byId.get(ch.objectId);
+  for (const ch of changes) {
     if (!EDITABLE_ATTRS.includes(ch.attr)) throw new PdmPatchError(`Attribute ${ch.attr} cannot be edited`);
-    if (!el || !allowedOn(ch.attr).has(el.name)) {
-      throw new PdmPatchError(`Attribute ${ch.attr} of object ${ch.objectId} cannot be edited`);
-    }
-    if ((ch.attr === 'Name' || ch.attr === 'Code' || ch.attr === 'DataType') && ch.value.trim() === '') {
-      throw new PdmPatchError(`${ch.attr} of ${ch.objectId} must not be empty`);
-    }
-    return toElements(ch);
-  });
-  // Several new elements may be inserted at the same offset; emitting them in
-  // PowerDesigner's order keeps them in that order (edits are sorted stably).
-  elements.sort((a, b) => orderOf(a.attr) - orderOf(b.attr));
-  const edits = elements.flatMap((e) => setAttribute(doc, e.objectId, e.attr, e.value));
-  return applyEdits(doc.xml.source, edits);
+  }
+  return writeAttributeChanges(doc, changes);
 }

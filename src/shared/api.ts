@@ -2,10 +2,11 @@
  * IPC contract between the main process and the renderer.
  * The preload script exposes `PdmApi` as `window.pdmApi`.
  */
-import type { AttributeChange } from '../pdm/changes';
+import type { DbmsKind } from '../pdm/template';
 import type { PdmModel } from '../pdm/types';
 
 export const IPC = {
+  new: 'pdm:new',
   open: 'pdm:open',
   openStartup: 'pdm:open-startup',
   save: 'pdm:save',
@@ -14,7 +15,9 @@ export const IPC = {
 export interface OpenedDocument {
   /** Handle for the parsed document held by the main process. */
   docId: string;
-  filePath: string;
+  /** Null for a new model that has not been saved yet. */
+  filePath: string | null;
+  /** File name, or the suggested one for a new model. */
   fileName: string;
   model: PdmModel;
   /**
@@ -31,8 +34,11 @@ export type OpenResult =
 
 export interface SaveRequest {
   docId: string;
-  /** Changes relative to the model as last opened/saved. */
-  changes: AttributeChange[];
+  /**
+   * The edited model. The main process compares it with the model as last
+   * opened/saved and writes only the differences into the original text.
+   */
+  model: PdmModel;
   /** Always ask for a target path. */
   saveAs: boolean;
 }
@@ -41,6 +47,8 @@ export interface SaveRequest {
 export type SaveResult = OpenResult;
 
 export interface PdmApi {
+  /** Creates an unsaved model from the blank template for the given DBMS. */
+  newDocument(dbms: DbmsKind): Promise<OpenResult>;
   /** Shows a file picker and parses the chosen PDM file. */
   openFile(): Promise<OpenResult>;
   /** Opens the `.pdm` passed on the command line, if any. */
