@@ -3,7 +3,7 @@
  * applied immutably. The history reducer provides undo/redo. Both the
  * property panel and (later) the canvas dispatch commands through here.
  */
-import { ATTR_FIELD, type EditableAttr } from '../pdm/changes';
+import { readAttr, writeAttr, type EditableAttr } from '../pdm/changes';
 import type { PdmColumn, PdmModel, PdmTable } from '../pdm/types';
 
 export type EditTarget = { kind: 'table'; tableId: string } | { kind: 'column'; tableId: string; columnId: string };
@@ -38,18 +38,20 @@ export function findTarget(model: PdmModel, target: EditTarget): PdmTable | PdmC
 }
 
 export function getAttr(model: PdmModel, target: EditTarget, attr: EditableAttr): string | undefined {
-  return findTarget(model, target)?.[ATTR_FIELD[attr]];
+  const obj = findTarget(model, target);
+  if (!obj) return undefined;
+  if (target.kind === 'table' && attr !== 'Name' && attr !== 'Code' && attr !== 'Comment') return undefined;
+  return readAttr(obj, attr);
 }
 
 /** Returns a new model with one attribute changed; untouched parts keep their identity. */
 export function setAttr(model: PdmModel, target: EditTarget, attr: EditableAttr, value: string): PdmModel {
-  const field = ATTR_FIELD[attr];
   return {
     ...model,
     tables: model.tables.map((t) => {
       if (t.id !== target.tableId) return t;
-      if (target.kind === 'table') return { ...t, [field]: value };
-      return { ...t, columns: t.columns.map((c) => (c.id === target.columnId ? { ...c, [field]: value } : c)) };
+      if (target.kind === 'table') return writeAttr(t, attr, value);
+      return { ...t, columns: t.columns.map((c) => (c.id === target.columnId ? writeAttr(c, attr, value) : c)) };
     }),
   };
 }
@@ -93,7 +95,14 @@ export function historyReducer(state: History, action: HistoryAction): History {
   }
 }
 
-const ATTR_LABEL: Record<EditableAttr, string> = { Name: '名称', Code: '代码', Comment: '注释' };
+const ATTR_LABEL: Record<EditableAttr, string> = {
+  Name: '名称',
+  Code: '代码',
+  Comment: '注释',
+  DataType: '数据类型',
+  DefaultValue: '默认值',
+  Mandatory: '非空',
+};
 
 /** Human-readable description, e.g. for undo/redo tooltips. */
 export function describeCommand(model: PdmModel, cmd: Command): string {

@@ -1,6 +1,6 @@
-import { Descriptions, Table, Tag, Typography } from 'antd';
+import { Descriptions, Switch, Table, Tag, Tooltip, Typography } from 'antd';
 import type { EditableAttr } from '../../pdm/changes';
-import type { PdmModel } from '../../pdm/types';
+import type { PdmColumn, PdmModel } from '../../pdm/types';
 import type { EditTarget } from '../../editing/commands';
 import { validateAttr } from '../../editing/validate';
 import type { Selection } from '../selection';
@@ -30,6 +30,46 @@ function NameCodeComment(props: {
       <EditableField label="名称" value={values.name} {...field('Name')} />
       <EditableField label="代码" value={values.code} mono {...field('Code')} />
       <EditableField label="注释" value={values.comment} multiline placeholder="无注释" {...field('Comment')} />
+    </div>
+  );
+}
+
+/** Data type, default value, and mandatory flag of a column. */
+function ColumnTypeFields(props: {
+  model: PdmModel;
+  target: EditTarget;
+  column: PdmColumn;
+  isPk: boolean;
+  onEdit: Props['onEdit'];
+}) {
+  const { model, target, column: c, isPk, onEdit } = props;
+  const field = (attr: EditableAttr) => ({
+    validate: (v: string) => validateAttr(model, target, attr, v),
+    onCommit: (v: string) => onEdit(target, attr, v),
+  });
+  return (
+    <div className="fields">
+      <EditableField label="数据类型" value={c.dataType} mono {...field('DataType')} />
+      <EditableField label="默认值" value={c.defaultValue} mono placeholder="无默认值" {...field('DefaultValue')} />
+      <div className="field field-inline">
+        <label className="field-label">非空</label>
+        <Tooltip title={isPk ? '主键字段必须非空' : undefined}>
+          <Switch
+            checkedChildren="是"
+            unCheckedChildren="否"
+            checked={c.mandatory}
+            disabled={isPk && c.mandatory}
+            onChange={(checked) => onEdit(target, 'Mandatory', checked ? '1' : '')}
+          />
+        </Tooltip>
+      </div>
+      <Descriptions size="small" column={2} bordered>
+        <Descriptions.Item label="长度">{c.length ?? <Dash />}</Descriptions.Item>
+        <Descriptions.Item label="精度">{c.precision ?? <Dash />}</Descriptions.Item>
+        <Descriptions.Item label="主键" span={2}>
+          {isPk ? '是' : '否'}
+        </Descriptions.Item>
+      </Descriptions>
     </div>
   );
 }
@@ -85,16 +125,14 @@ export function PropertyPanel({ model, selection, onSelect, onEdit }: Props) {
             values={c}
             onEdit={onEdit}
           />
-          <Descriptions size="small" column={1} bordered>
-            <Descriptions.Item label="数据类型">
-              <Mono>{c.dataType || '—'}</Mono>
-            </Descriptions.Item>
-            <Descriptions.Item label="非空">{c.mandatory ? '是' : '否'}</Descriptions.Item>
-            <Descriptions.Item label="主键">{pk.has(c.id) ? '是' : '否'}</Descriptions.Item>
-            <Descriptions.Item label="默认值">
-              {c.defaultValue ? <Mono>{c.defaultValue}</Mono> : <Dash />}
-            </Descriptions.Item>
-          </Descriptions>
+          <ColumnTypeFields
+            key={`type-${c.id}`}
+            model={model}
+            target={{ kind: 'column', tableId: t.id, columnId: c.id }}
+            column={c}
+            isPk={pk.has(c.id)}
+            onEdit={onEdit}
+          />
         </Section>
       );
     }
@@ -137,6 +175,13 @@ export function PropertyPanel({ model, selection, onSelect, onEdit }: Props) {
               ),
             },
             { title: '类型', dataIndex: 'dataType', render: (v: string) => <Mono>{v}</Mono> },
+            {
+              title: '非空',
+              dataIndex: 'mandatory',
+              width: 48,
+              align: 'center',
+              render: (v: boolean) => (v ? '✓' : ''),
+            },
             { title: '名称', dataIndex: 'name', ellipsis: true },
           ]}
         />

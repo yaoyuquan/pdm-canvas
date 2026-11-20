@@ -12,18 +12,24 @@ export interface TextEdit {
 }
 
 /**
- * Attribute elements a new `<a:X>` is inserted after, in preference order.
- * Mirrors the order PowerDesigner writes standard object attributes.
+ * Order in which PowerDesigner writes the leading attribute elements of
+ * tables and columns (verified against PD 16.7.5 output). A new `<a:X>` is
+ * inserted after the nearest element preceding it in this list.
  */
-const ATTR_ANCHORS = [
-  'a:Comment',
-  'a:Modifier',
-  'a:ModificationDate',
-  'a:Creator',
-  'a:CreationDate',
-  'a:Code',
-  'a:Name',
+export const ATTR_ORDER = [
   'a:ObjectID',
+  'a:Name',
+  'a:Code',
+  'a:CreationDate',
+  'a:Creator',
+  'a:ModificationDate',
+  'a:Modifier',
+  'a:Comment',
+  'a:DefaultValue',
+  'a:DataType',
+  'a:Length',
+  'a:Precision',
+  'a:Column.Mandatory',
 ];
 
 export class PdmPatchError extends Error {
@@ -64,9 +70,10 @@ export function setAttribute(doc: PdmDocument, objectId: string, attr: string, v
   return [{ start: at, end: at, text: `${eol}<${tag}>${encoded}</${tag}>` }];
 }
 
+/** Inserts after the nearest attribute PowerDesigner writes before `tag`. */
 function findAnchor(el: XElement, tag: string): XElement | undefined {
-  const start = ATTR_ANCHORS.indexOf(tag);
-  const candidates = start >= 0 ? ATTR_ANCHORS.slice(start + 1) : ATTR_ANCHORS;
+  const pos = ATTR_ORDER.indexOf(tag);
+  const candidates = (pos >= 0 ? ATTR_ORDER.slice(0, pos) : [...ATTR_ORDER]).reverse();
   for (const name of candidates) {
     const hit = childEl(el, name);
     if (hit) return hit;

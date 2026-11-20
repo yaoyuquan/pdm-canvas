@@ -233,6 +233,13 @@ body {
   gap: 4px;
 }
 
+/* Label and a compact control (e.g. a switch) on one row, control not stretched. */
+.field-inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
 .field-label {
   font-size: 12px;
   color: var(--text-2);

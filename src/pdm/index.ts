@@ -5,7 +5,11 @@ export {
   diffAttributes,
   writeChanges,
   EDITABLE_ATTRS,
-  ATTR_FIELD,
+  TABLE_ATTRS,
+  COLUMN_ATTRS,
+  parseDataType,
+  readAttr,
+  writeAttr,
   type AttributeChange,
   type EditableAttr,
 } from './changes';
